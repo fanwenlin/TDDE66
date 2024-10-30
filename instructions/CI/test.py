@@ -51,6 +51,6 @@ test_cases = [
   test("lab6", "lab6", "remaining", ["./diesel","-b","-q","-y","../testpgm/quadtest1.d"], "trace/quadtest1.trace"),
   test("lab7", "lab7", "remaining", ["./diesel","-y","../testpgm/codetest1.d"], "trace/codetest1.trace")
 ]
-ts = TestSuite("TDDB44 Labs", test_cases)
+ts = TestSuite("TDDE66 Labs", test_cases)
 with open('output.xml', 'w') as f:
   TestSuite.to_file(f, [ts], prettyprint=False)

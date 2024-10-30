@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = TDDB44CompilerConstruction
+SPHINXPROJ    = TDDE66CompilerConstruction
 SOURCEDIR     = source
 BUILDDIR      = build
 

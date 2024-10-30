@@ -1,4 +1,4 @@
-TDDB44 Compiler Construction - Lab Instructions
+TDDE66 Compiler Construction - Lab Instructions
 ===============================================
 
 .. toctree::

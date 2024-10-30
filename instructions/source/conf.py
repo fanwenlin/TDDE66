@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('.'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'TDDB44 Compiler Construction'
+project = 'TDDE66 Compiler Construction'
 copyright = u'2018-2020, Martin Sjölund et al.'
 author = u'Martin Sjölund et al.'
 
@@ -113,7 +113,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'TDDB44CompilerConstructiondoc'
+htmlhelp_basename = 'TDDE66CompilerConstructiondoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -140,7 +140,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'TDDB44CompilerConstruction.tex', 'TDDB44 Compiler Construction Documentation',
+    (master_doc, 'TDDE66CompilerConstruction.tex', 'TDDE66 Compiler Construction Documentation',
      'Martin Sjölund', 'manual'),
 ]
 
@@ -150,7 +150,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'tddb44compilerconstruction', 'TDDB44 Compiler Construction Documentation',
+    (master_doc, 'tdde66compilerconstruction', 'TDDE66 Compiler Construction Documentation',
      [author], 1)
 ]
 
@@ -161,8 +161,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'TDDB44CompilerConstruction', 'TDDB44 Compiler Construction Documentation',
-     author, 'TDDB44CompilerConstruction', 'One line description of project.',
+    (master_doc, 'TDDE66CompilerConstruction', 'TDDE66 Compiler Construction Documentation',
+     author, 'TDDE66CompilerConstruction', 'One line description of project.',
      'Miscellaneous'),
 ]
 
@@ -170,8 +170,8 @@ imgmath_image_format = 'svg'
 imgmath_dvisvgm_args = ['--no-fonts', '--exact']
 highlight_language = 'pascal'
 
-breathe_projects = { "TDDB44": "../doxygen/xml" }
-breathe_default_project = "TDDB44"
+breathe_projects = { "TDDE66": "../doxygen/xml" }
+breathe_default_project = "TDDE66"
 
 mermaid_output_format = 'raw'
 graphviz_output_format = 'svg'

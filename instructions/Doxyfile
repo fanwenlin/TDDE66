@@ -4,9 +4,9 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = TDDB44
+PROJECT_NAME           = TDDE66
 PROJECT_NUMBER         =
-PROJECT_BRIEF          = "TDDB44 Compiler Construction Labs"
+PROJECT_BRIEF          = "TDDE66 Compiler Construction Labs"
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       = doxygen
 CREATE_SUBDIRS         = NO

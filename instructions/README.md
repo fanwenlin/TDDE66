@@ -1,4 +1,4 @@
-TDDB44 Lab Instruction
+TDDE66 Lab Instruction
 ======================
 
 To compile the documentation you will need many LaTeX and Python packages.

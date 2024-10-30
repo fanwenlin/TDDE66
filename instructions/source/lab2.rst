@@ -202,7 +202,7 @@ In the diagram, we have chosen (for reasons of space) to show only the attribute
 We assume the following functions exist (see the top of ``symtab.hh`` for some type definitions used here):
 
 .. doxygenclass:: symbol_table
-   :project: TDDB44
+   :project: TDDE66
    :members: install_symbol, lookup_symbol, open_scope, close_scope, string_pool, current_level, block_table
    :no-link:
 
@@ -684,7 +684,7 @@ String table methods:
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. doxygenclass:: symbol_table
-   :project: TDDB44
+   :project: TDDE66
    :members: pool_install, pool_lookup, pool_compare, pool_forget, fix_string, capitalize
    :no-link:
 
@@ -692,7 +692,7 @@ Hash table methods:
 ^^^^^^^^^^^^^^^^^^^
 
 .. doxygenclass:: symbol_table
-   :project: TDDB44
+   :project: TDDE66
    :members: hash
    :no-link:
 
@@ -700,7 +700,7 @@ Display methods:
 ^^^^^^^^^^^^^^^^
 
 .. doxygenclass:: symbol_table
-   :project: TDDB44
+   :project: TDDE66
    :members: current_environment
    :no-link:
 
@@ -708,7 +708,7 @@ Symbol table methods:
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. doxygenclass:: symbol_table
-   :project: TDDB44
+   :project: TDDE66
    :members: get_symbol, print, get_symbol_id, get_symbol_type, get_symbol_tag, get_symbol_type, get_temp_var, enter_constant, enter_variable, enter_array, enter_function, enter_parameter, enter_nametype
    :no-link:
 
