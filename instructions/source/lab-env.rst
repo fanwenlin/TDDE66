@@ -6,7 +6,7 @@ Important: Checking out the Lab Skeleton
 
 To work with the labs and hand in your results, you will need to use
 git.
-Start by creating a private fork of the course `repository <https://gitlab.liu.se/TDDE66/TDDE66>`_,
+Start by creating a private fork of the course `repository <https://gitlab.liu.se/tdde66-student/TDDE66>`_,
 using the `gitlab <https://gitlab.liu.se>`_ web interface; give your lab assistant access to the repository.
 You might need to read some of the `help <https://gitlab.liu.se/help/#getting-started-with-gitlab>`_
 to get started with git.
