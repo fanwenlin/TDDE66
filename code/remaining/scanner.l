@@ -23,6 +23,12 @@ int column = 0;
 
 extern YYLTYPE yylloc; // Used for position information, see below.
 
+#define SETLOC_IN_SINGLE_LINE() yylloc.first_line = yylineno; \
+                              yylloc.first_column = column; \
+                              column += yyleng; 
+
+
+
 %}
 
 %option yylineno
@@ -35,6 +41,9 @@ extern YYLTYPE yylloc; // Used for position information, see below.
 
 %x c_comment
 DIGIT [0-9]
+EXP     [eE][+-]?{DIGIT}+
+DEC1    {DIGIT}+\.{DIGIT}*
+DEC2    \.{DIGIT}+
 /* {DIGIT}+"."{DIGIT}*
  ID [a-z][a-z0-9]* */
 
@@ -44,6 +53,13 @@ DIGIT [0-9]
    following: Diesel comments, Diesel string constants, Diesel
    identifiers, integers, reals, and whitespace. */
 %%
+\{[^\}]*\} { SETLOC_IN_SINGLE_LINE(); }
+'([^\n']*('')?)*' { SETLOC_IN_SINGLE_LINE(); yylval.str = sym_tab->pool_install(sym_tab->fix_string(yytext)); return T_STRINGCONST; }
+
+{DIGIT}+ { SETLOC_IN_SINGLE_LINE(); yylval.ival = atol(yytext); return T_INTNUM; }
+
+({DEC1}|{DEC2})({EXP})?|{DIGIT}+{EXP} { SETLOC_IN_SINGLE_LINE(); yylval.rval = atof(yytext); return T_REALNUM; }
+
 
 \.                       {
                             yylloc.first_line = yylineno;
@@ -152,48 +168,20 @@ DIGIT [0-9]
 of                       {
                             
                          }
-if                       {
-                            
-                         }
-do                       {
-                            
-                         }
-or                       {
-                            
-                         }
-var                      {
-                            
-                         }
-end                      {
-                            
-                         }
-and                      {
-                            
-                         }
-div                      {
-                            
-                         }
-mod                      {
-                            
-                         }
-not                      {
-                            
-                         }
-then                     {
-                            
-                         }
-else                     {
-                            
-                         }
-const                    {
-                            
-                         }
-array                    {
-                            
-                         }
-begin                    {
-                            
-                         }
+if                       { SETLOC_IN_SINGLE_LINE(); return T_IF; }
+do                       { SETLOC_IN_SINGLE_LINE(); return T_DO; }
+or                       { SETLOC_IN_SINGLE_LINE(); return T_OR; }
+var                      { SETLOC_IN_SINGLE_LINE(); return T_VAR; }
+end                      { SETLOC_IN_SINGLE_LINE(); return T_END; }
+and                      { SETLOC_IN_SINGLE_LINE(); return T_AND; }
+div                      { SETLOC_IN_SINGLE_LINE(); return T_IDIV; }
+mod                      { SETLOC_IN_SINGLE_LINE(); return T_MOD; }
+not                      { SETLOC_IN_SINGLE_LINE(); return T_NOT; }
+then                     { SETLOC_IN_SINGLE_LINE(); return T_THEN; }
+else                     { SETLOC_IN_SINGLE_LINE(); return T_ELSE; }
+const                    { SETLOC_IN_SINGLE_LINE(); return T_CONST; }
+array                    { SETLOC_IN_SINGLE_LINE(); return T_ARRAY; }
+begin                    { SETLOC_IN_SINGLE_LINE(); return T_BEGIN; }
 while                    {
                             
                          }
@@ -204,6 +192,7 @@ return                   {
                             
                          }
 program                  {
+   SETLOC_IN_SINGLE_LINE(); return T_PROGRAM;
                             
                          }
 function                 {
@@ -212,6 +201,9 @@ function                 {
 procedure                {
                             
                          }
+
+
+[a-zA-Z_][a-zA-Z0-9_]* { SETLOC_IN_SINGLE_LINE(); yylval.pool_p = sym_tab->pool_install(sym_tab->capitalize(yytext)); return T_IDENT; }
 
 
 \/\/.*$                  column = 0; /* Skip single-line comment */
@@ -238,6 +230,8 @@ procedure                {
                          }
 }
 
+\n {column = 0;}
+[ \t\r\f\v]+ { SETLOC_IN_SINGLE_LINE(); }
  
 
 <<EOF>>                  yyterminate();

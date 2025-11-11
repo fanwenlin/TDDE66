@@ -41,6 +41,9 @@ clean :
 lab1: all
 	- ./scanner ../testpgm/scannertest1.d 2>&1 | diff -ub ../trace/scannertest1.trace -
 
+lab1out: all
+	- ./scanner ../testpgm/scannertest1.d > output.log 2>&1 
+
 $(DPFILE) depend : $(SOURCES) $(HEADERS)
 	$(CC) $(DPFLAGS) $(CFLAGS) $(SOURCES) > $(DPFILE)
 
