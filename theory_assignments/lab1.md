@@ -16,23 +16,57 @@ floating points: ({DEC1}|{DEC2})({EXP})?|{DIGIT}+{EXP}
 
 ```mermaid
 stateDiagram
-    direction LR 
-    [*] --> begin
+    direction LR
+    [*] --> Begin
 
-    begin --> integerOrFloat: digit[0-9]
-    integerOrFloat --> integerOrFloat: digit[0-9]
-    integerOrFloat --> float: e / .
-    integerOrFloat --> integer: nondigit, not ./e
+    Begin --> Int : digit
+    Int   --> Int : digit
 
-    begin --> string : '
-    begin --> comment : \{
+    Int   --> ExpStart : e/E
 
-    begin --> begin: blank
-    state string <<final>>
-    state comment <<final>>
-    state float <<final>>
+    
+    Int         --> DotAfterInt : '.'
+    DotAfterInt --> Float1        : digit 
+    Float1        --> Float1        : digit
 
-    state integer <<final>>
+    
+    Begin    --> DotStart : '.'
+    DotStart --> Float1     : digit
+
+    
+    Float1      --> ExpStart : e/E
+    DotAfterInt --> ExpStart : e/E 
+
+
+    ExpStart   --> ExpSign   : +/-
+    ExpStart   --> ExpDigits : digit
+    ExpSign    --> ExpDigits : digit
+    ExpDigits  --> ExpDigits : digit
+
+    Begin --> InString : '
+    InString --> InString  : not ' and not newline
+    InString --> StringEnd : '
+
+    Begin --> InComment : '{'
+    InComment --> InComment  : not '}'
+    InComment --> CommentEnd : '}'
+
+
+    Begin --> Begin : blank
+
+
+    state Int <<final>>          
+    Int --> end
+    state DotAfterInt <<final>>  
+    DotAfterInt --> end
+    state Float1 <<final>>        
+    Float1 --> end
+    state ExpDigits <<final>>    
+    ExpDigits --> end
+    state StringEnd <<final>>
+    StringEnd --> end
+    state CommentEnd <<final>>
+    CommentEnd --> end
 ```
 
 

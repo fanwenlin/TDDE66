@@ -165,9 +165,7 @@ DEC2    \.{DIGIT}+
                          }
 
 
-of                       {
-                            
-                         }
+of                       { SETLOC_IN_SINGLE_LINE(); return T_OF; }
 if                       { SETLOC_IN_SINGLE_LINE(); return T_IF; }
 do                       { SETLOC_IN_SINGLE_LINE(); return T_DO; }
 or                       { SETLOC_IN_SINGLE_LINE(); return T_OR; }
@@ -182,25 +180,15 @@ else                     { SETLOC_IN_SINGLE_LINE(); return T_ELSE; }
 const                    { SETLOC_IN_SINGLE_LINE(); return T_CONST; }
 array                    { SETLOC_IN_SINGLE_LINE(); return T_ARRAY; }
 begin                    { SETLOC_IN_SINGLE_LINE(); return T_BEGIN; }
-while                    {
-                            
-                         }
-elsif                    {
-                            
-                         }
-return                   {
-                            
-                         }
+while                    { SETLOC_IN_SINGLE_LINE(); return T_BEGIN; }
+elsif                    { SETLOC_IN_SINGLE_LINE(); return T_ELSIF; }
+return                   { SETLOC_IN_SINGLE_LINE(); return T_RETURN; }
 program                  {
    SETLOC_IN_SINGLE_LINE(); return T_PROGRAM;
                             
                          }
-function                 {
-                            
-                         }
-procedure                {
-                            
-                         }
+function                 { SETLOC_IN_SINGLE_LINE(); return T_FUNCTION; }
+procedure                { SETLOC_IN_SINGLE_LINE(); return T_PROCEDURE; }
 
 
 [a-zA-Z_][a-zA-Z0-9_]* { SETLOC_IN_SINGLE_LINE(); yylval.pool_p = sym_tab->pool_install(sym_tab->capitalize(yytext)); return T_IDENT; }
