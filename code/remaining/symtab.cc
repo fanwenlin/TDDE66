@@ -176,8 +176,18 @@ long symbol_table::get_next_label()
 sym_index symbol_table::gen_temp_var(sym_index type)
 {
     /* Your code here */
-    // todo impl this
-    return NULL_SYM;
+    // todo it seems not used in lab2
+    char temp_var[MAX_TEMP_VAR_LENGTH + 1];
+    sprintf(temp_var, "$%d", temp_nr++);
+    pool_index temp_var_idx = pool_install(temp_var);
+    sym_index temp_var_sym = install_symbol(temp_var_idx, SYM_VAR);
+    sym_table[temp_var_sym]->type = type;
+    sym_table[temp_var_sym]->level = current_level;
+    sym_table[temp_var_sym]->hash_link = NULL_SYM;
+    sym_table[temp_var_sym]->back_link = NULL_SYM;
+    sym_table[temp_var_sym]->offset = 0;
+    sym_table[temp_var_sym]->tag = SYM_VAR;
+    return temp_var_sym;
 }
 
 /* This function returns the byte size of a nametype. */
