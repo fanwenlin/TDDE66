@@ -178,7 +178,7 @@ sym_index symbol_table::gen_temp_var(sym_index type)
     /* Your code here */
     // todo it seems not used in lab2
     char temp_var[MAX_TEMP_VAR_LENGTH + 1];
-    sprintf(temp_var, "$%d", temp_nr++);
+    snprintf(temp_var, MAX_TEMP_VAR_LENGTH + 1, "$%ld", temp_nr++);
     pool_index temp_var_idx = pool_install(temp_var);
     sym_index temp_var_sym = install_symbol(temp_var_idx, SYM_VAR);
     sym_table[temp_var_sym]->type = type;
@@ -756,10 +756,7 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     new_symbol->back_link = hash_value;
     // cout << "new_symbol->hash_link = " << new_symbol->hash_link << endl;
     // cout << "new_symbol->back_link = " << new_symbol->back_link << endl;
-    if (old_sym_idx != NULL_SYM)
-    {
-        sym_table[old_sym_idx]->back_link = hash_value;
-    }
+
     hash_table[hash_value] = new_sym_idx; // mount the new symbol to the top of the bucket
 
     // step 4 set other attributes of the new symbol
