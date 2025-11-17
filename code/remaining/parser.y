@@ -181,7 +181,12 @@ prog_decl       : prog_head T_SEMICOLON const_part variable_part
 prog_head       : T_PROGRAM T_IDENT
                 {
                     /* Your code here */
+                    position_information *pos =
+                        new position_information(@1.first_line,
+                                                 @1.first_column);
+                    sym_index prog_loc = sym_tab->enter_procedure(pos, $2);
                     sym_tab->open_scope();
+                    $$ = new ast_procedurehead(pos, prog_loc);
                 }
                 ;
 
@@ -431,19 +436,9 @@ proc_decl       : proc_head opt_param_list T_SEMICOLON const_part variable_part
 
 func_decl       : func_head opt_param_list T_COLON type_id T_SEMICOLON const_part variable_part
                 {
-                    /* Your code here */
-                    position_information *pos = new position_information(@1.first_line,  @1.first_column);
-                    // ? more steps?
-                    sym_index func_loc = $1->sym_p;
-                    function_symbol *func = sym_tab->get_symbol(func_loc)->get_function_symbol();
-
-                    // ? set return type
-
-                    // ? set parameter list
-                    
-
+                    /* Your code here */                    
+                    sym_tab->set_symbol_type($1->sym_p, $4->sym_p);
                     $$ = $1;
-                    
                 }
                 ;
 
@@ -548,13 +543,21 @@ stmt_list       : stmt
                 {
                     /* Your code here */
                     position_information *pos = new position_information(@1.first_line,  @1.first_column);
-                    $$ = new ast_stmt_list(pos, $1);
+                    if($1) {
+                        $$ = new ast_stmt_list(pos, $1);
+                    } else {
+                        $$ = NULL;
+                    }
                 }
                 | stmt_list T_SEMICOLON stmt
                 {
                     /* Your code here */
                     position_information *pos = new position_information(@1.first_line,  @1.first_column);
-                    $$ = new ast_stmt_list(pos, $3, $1);
+                    if($3) {
+                        $$ = new ast_stmt_list(pos, $3, $1);
+                    } else {
+                        $$ = $1;
+                    }
                 }
                 ;
 

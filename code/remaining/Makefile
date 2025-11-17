@@ -57,6 +57,15 @@ lab3: all
 	- ./diesel -a -b -c -f -p ../testpgm/parstest2.d 2>&1 | diff -ub ../trace/parstest2.trace -
 	- ./diesel -a -b -c -f -p ../testpgm/parstest3.d 2>&1 | diff -ub ../trace/parstest3.trace -
 
+lab3a: all
+	- ./diesel -a -b -c -f -p ../testpgm/parstest1.d 2>&1 | diff -ub ../trace/parstest1.trace -
+
+lab3b: all
+	- ./diesel -a -b -c -f -p ../testpgm/parstest2.d 2>&1 | diff -ub ../trace/parstest2.trace -
+
+lab3c: all
+	- ./diesel -a -b -c -f -p ../testpgm/parstest3.d 2>&1 | diff -ub ../trace/parstest3.trace -
+
 lab4: all
 	- ./diesel -a -b -f -p -y ../testpgm/semtest1.d 2>&1 | diff -ub ../trace/semtest1.trace -
 	- ./diesel -f ../testpgm/semtest2.d 2>&1 | diff -ub ../trace/semtest2.trace -
