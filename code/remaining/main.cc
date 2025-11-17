@@ -11,6 +11,7 @@ using namespace std;
 
 extern int error_count;
 extern bool yydebug;
+extern int yyparse();
 bool assembler_trace = false;
 bool print_ast = false;
 bool print_quads = false;
@@ -38,39 +39,45 @@ void usage(char *program_name)
     exit(1);
 }
 
-
 int main(int argc, char **argv)
 {
     char options[] = "acdfpqstyh?";
     int option;
     bool print_symtab = false;
 
-    extern  FILE *yyin;
+    extern FILE *yyin;
 
     opterr = 0;
     optopt = '?';
 
     // Check for options.
-    while ((option = getopt(argc, argv, options)) != EOF) {
-        switch (option) {
+    while ((option = getopt(argc, argv, options)) != EOF)
+    {
+        switch (option)
+        {
         case 'a':
-            cout << "An AST will be printed for each block.\n" << flush;
+            cout << "An AST will be printed for each block.\n"
+                 << flush;
             print_ast = true;
             break;
         case 'c':
-            cout << "No type checking will be performed.\n" << flush;
+            cout << "No type checking will be performed.\n"
+                 << flush;
             typecheck = false;
             break;
         case 'd':
-            cout << "Bison debugging turned on.\n" << flush;
+            cout << "Bison debugging turned on.\n"
+                 << flush;
             yydebug = true;
             break;
         case 'f':
-            cout << "No optimization will be done.\n" << flush;
+            cout << "No optimization will be done.\n"
+                 << flush;
             optimize = false;
             break;
         case 'p':
-            cout << "No quads will be generated.\n" << flush;
+            cout << "No quads will be generated.\n"
+                 << flush;
             quads = false;
             break;
         case 'q':
@@ -79,11 +86,13 @@ int main(int argc, char **argv)
             print_quads = true;
             break;
         case 's':
-            cout << "No assembler code will be generated.\n" << flush;
+            cout << "No assembler code will be generated.\n"
+                 << flush;
             assembler = false;
             break;
         case 't':
-            cout << "Assembler code will contain quad labels.\n" << flush;
+            cout << "Assembler code will contain quad labels.\n"
+                 << flush;
             assembler_trace = true;
             break;
         case 'y':
@@ -99,13 +108,19 @@ int main(int argc, char **argv)
         }
     }
 
-    if (optind > argc || optind < argc - 1) {
+    if (optind > argc || optind < argc - 1)
+    {
         usage(argv[0]);
-    } else if (optind == argc) {
+    }
+    else if (optind == argc)
+    {
         yyin = stdin;
-    } else {
+    }
+    else
+    {
         yyin = fopen(argv[optind], "r");
-        if (yyin == NULL) {
+        if (yyin == NULL)
+        {
             perror(argv[optind]);
             exit(1);
         }
@@ -118,13 +133,11 @@ int main(int argc, char **argv)
 
     // If given the appropriate flag, prints the symbol table after the input
     // has been parsed.
-    if (print_symtab) {
+    if (print_symtab)
+    {
         sym_tab->print(2);
         sym_tab->print(1);
     }
 
     exit(error_count);
 }
-
-
-
