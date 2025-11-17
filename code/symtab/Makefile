@@ -43,6 +43,15 @@ lab2: all
 	- ./symtab b 2>&1 | diff -ub ../trace/symtab2b.trace -
 	- ./symtab c 2>&1 | diff -ub ../trace/symtab2c.trace -
 
+lab2a: all
+	- ./symtab a 2>&1 | diff -ub ../trace/symtab2a.trace -
+
+lab2b: all
+	- ./symtab b 2>&1 | diff -ub ../trace/symtab2b.trace -
+
+lab2c: all
+	- ./symtab c 2>&1 | diff -ub ../trace/symtab2c.trace -
+
 $(DPFILE) depend : $(SOURCES) $(HEADERS)
 	$(CC) $(DPFLAGS) $(CFLAGS) $(SOURCES) > $(DPFILE)
 

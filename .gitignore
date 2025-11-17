@@ -13,3 +13,5 @@ code/symtab/scanner.cc
 code/symtab/symtab
 code/testsuite.html
 code/tmp
+
+.vscode/
