@@ -180,7 +180,7 @@ else                     { SETLOC_IN_SINGLE_LINE(); return T_ELSE; }
 const                    { SETLOC_IN_SINGLE_LINE(); return T_CONST; }
 array                    { SETLOC_IN_SINGLE_LINE(); return T_ARRAY; }
 begin                    { SETLOC_IN_SINGLE_LINE(); return T_BEGIN; }
-while                    { SETLOC_IN_SINGLE_LINE(); return T_BEGIN; }
+while                    { SETLOC_IN_SINGLE_LINE(); return T_WHILE; }
 elsif                    { SETLOC_IN_SINGLE_LINE(); return T_ELSIF; }
 return                   { SETLOC_IN_SINGLE_LINE(); return T_RETURN; }
 program                  {

@@ -62,9 +62,16 @@ bool semantic::chk_param(ast_id *env, parameter_symbol *formals,
 /* Check formal vs. actual parameters at procedure/function calls. */
 void semantic::check_parameters(ast_id *call_id, ast_expr_list *param_list) {
   /* Your code here */
-  function_symbol *func =
-      sym_tab->get_symbol(call_id->sym_p)->get_function_symbol();
-  parameter_symbol *formals = func->last_parameter;
+  symbol *sym = sym_tab->get_symbol(call_id->sym_p);
+  parameter_symbol *formals = NULL;
+  if (sym->tag == SYM_FUNC) {
+    formals = sym->get_function_symbol()->last_parameter;
+  } else if (sym->tag == SYM_PROC) {
+    formals = sym->get_procedure_symbol()->last_parameter;
+  } else {
+    type_error(call_id->pos) << "Expected function or procedure.\n";
+    return;
+  }
   chk_param(call_id, formals, param_list);
 }
 
