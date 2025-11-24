@@ -44,8 +44,7 @@ bool semantic::chk_param(ast_id *env, parameter_symbol *formals,
       return false;
     }
     if (actuals == NULL) {
-      type_error(actuals->last_expr->pos)
-          << "More formal than actual parameters.\n";
+      type_error(env->pos) << "More formal than actual parameters.\n";
       return false;
     }
     if (formals->type != actuals->last_expr->type_check()) {

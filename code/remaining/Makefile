@@ -71,7 +71,10 @@ lab4: all
 	- ./diesel -f ../testpgm/semtest2.d 2>&1 | diff -ub ../trace/semtest2.trace -
 
 lab4a: all
-	- ./diesel -a -b -f -p -y ../testpgm/semtest1.d 2>&1
+	- ./diesel -a -b -f -p -y ../testpgm/semtest1.d 2>&1 | diff -ub ../trace/semtest1.trace -
+
+lab4b: all
+	- ./diesel -f ../testpgm/semtest2.d 2>&1 | diff -ub ../trace/semtest2.trace -
 
 
 lab5: all
