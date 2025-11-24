@@ -48,7 +48,7 @@ bool semantic::chk_param(ast_id *env, parameter_symbol *formals,
           << "More formal than actual parameters.\n";
       return false;
     }
-    if (formals->type != actuals->last_expr->type) {
+    if (formals->type != actuals->last_expr->type_check()) {
       type_error(actuals->last_expr->pos)
           << "Type discrepancy between formal and actual parameters.\n";
       return false;
@@ -150,10 +150,11 @@ sym_index ast_id::type_check() {
 
 sym_index ast_indexed::type_check() {
   /* Your code here */
-  if (index->type != integer_type) {
+  if (index->type_check() != integer_type) {
     type_error(index->pos) << "Index must be of integer type.\n";
   }
-  return id->type;
+  type = id->type_check();
+  return type;
 }
 
 /* This convenience function is used to type check all binary operations
@@ -162,16 +163,20 @@ sym_index ast_indexed::type_check() {
 sym_index semantic::check_binop1(ast_binaryoperation *node) {
   /* Your code here */
   // if both are identical types, return that type
-  if (node->left->type == node->right->type) {
-    return node->left->type;
+  sym_index l_type = node->left->type_check();
+  sym_index r_type = node->right->type_check();
+  if (l_type == r_type) {
+    node->type = l_type;
+    return l_type;
   }
   // casting integer to real
-  if (node->left->type == integer_type) {
+  if (l_type == integer_type) {
     node->left = new ast_cast(node->pos, node->left);
   }
-  if (node->right->type == integer_type) {
+  if (r_type == integer_type) {
     node->right = new ast_cast(node->pos, node->right);
   }
+  node->type = real_type;
   return real_type;
 }
 
@@ -182,7 +187,6 @@ sym_index ast_add::type_check() {
 
 sym_index ast_sub::type_check() {
   /* Your code here */
-
   return type_checker->check_binop1(this);
 }
 
@@ -195,12 +199,15 @@ sym_index ast_mult::type_check() {
    operands are cast to real too as needed. */
 sym_index ast_divide::type_check() {
   /* Your code here */
-  if (left->type != integer_type) {
+  sym_index l_type = left->type_check();
+  sym_index r_type = right->type_check();
+  if (l_type == integer_type) {
     left = new ast_cast(pos, left);
   }
-  if (right->type != integer_type) {
+  if (r_type == integer_type) {
     right = new ast_cast(pos, right);
   }
+  type = real_type;
   return real_type;
 }
 
@@ -212,9 +219,10 @@ sym_index ast_divide::type_check() {
    */
 sym_index semantic::check_binop2(ast_binaryoperation *node, string s) {
   /* Your code here */
-  if (node->left->type != integer_type || node->right->type != integer_type) {
+  if (node->left->type_check() != integer_type || node->right->type_check() != integer_type) {
     type_error(node->pos) << s;
   }
+  node->type = integer_type;
   return integer_type;
 }
 
@@ -246,14 +254,17 @@ sym_index ast_mod::type_check() {
    the same way. They all return integer types, 1 = true, 0 = false. */
 sym_index semantic::check_binrel(ast_binaryrelation *node) {
   /* Your code here */
-  if (node->left->type != node->right->type) {
-    if (node->left->type == integer_type) {
+  sym_index l_type = node->left->type_check();
+  sym_index r_type = node->right->type_check();
+  if (l_type != r_type) {
+    if (l_type == integer_type) {
       node->left = new ast_cast(node->pos, node->left);
     }
-    if (node->right->type == integer_type) {
+    if (r_type == integer_type) {
       node->right = new ast_cast(node->pos, node->right);
     }
   }
+  node->type = integer_type;
   return integer_type;
 }
 
@@ -287,11 +298,12 @@ sym_index ast_procedurecall::type_check() {
 
 sym_index ast_assign::type_check() {
   /* Your code here */
-  lhs->type_check();
-  if (rhs->type == real_type && lhs->type == integer_type) {
+  sym_index l_type = lhs->type_check();
+  sym_index r_type = rhs->type_check();
+  if (r_type == real_type && l_type == integer_type) {
     type_error(pos) << "Can't assign a real value to an integer variable.\n";
   }
-  if (lhs->type == real_type && rhs->type == integer_type) {
+  if (l_type == real_type && r_type == integer_type) {
     rhs = new ast_cast(pos, rhs);
   }
   return void_type;
@@ -376,14 +388,20 @@ sym_index ast_functioncall::type_check() {
 
 sym_index ast_uminus::type_check() {
   /* Your code here */
-  return void_type;
+  sym_index type = expr->type_check();
+  if (type != integer_type && type != real_type) {
+    type_error(expr->pos) << "Unary minus operand must be integer or real.\n";
+  }
+  this->type = type;
+  return type;
 }
 
 sym_index ast_not::type_check() {
   /* Your code here */
-  if (expr->type != integer_type) {
+  if (expr->type_check() != integer_type) {
     type_error(expr->pos) << "Unary minus operand must be of integer type.\n";
   }
+  type = integer_type;
   return integer_type;
 }
 
