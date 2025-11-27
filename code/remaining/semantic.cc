@@ -122,6 +122,12 @@ sym_index ast_stmt_list::type_check() {
 /* Type check a list of expressions. */
 sym_index ast_expr_list::type_check() {
   /* Your code here */
+  if (preceding != NULL) {
+    preceding->type_check();
+  }
+  if (last_expr != NULL) {
+    last_expr->type_check();
+  }
   return void_type;
 }
 
@@ -218,7 +224,8 @@ sym_index ast_divide::type_check() {
    */
 sym_index semantic::check_binop2(ast_binaryoperation *node, string s) {
   /* Your code here */
-  if (node->left->type_check() != integer_type || node->right->type_check() != integer_type) {
+  if (node->left->type_check() != integer_type ||
+      node->right->type_check() != integer_type) {
     type_error(node->pos) << s;
   }
   node->type = integer_type;
