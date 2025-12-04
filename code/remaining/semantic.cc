@@ -416,6 +416,9 @@ sym_index ast_elsif::type_check() {
   if (condition->type_check() != integer_type) {
     type_error(condition->pos) << "Predicate must be of integer type.\n";
   }
+  if (body != NULL) {
+    body->type_check();
+  }
   return void_type;
 }
 

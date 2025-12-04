@@ -80,6 +80,10 @@ lab4b: all
 lab5: all
 	- ./diesel -a -b -p ../testpgm/opttest1.d 2>&1 | diff -ub ../trace/opttest1.trace -
 
+lab5out: all
+	- ./diesel -a -b -p ../testpgm/opttest1.d > output.log 2>&1
+
+
 lab6: all
 	- ./diesel -b -q -y ../testpgm/quadtest1.d 2>&1 | diff -ub ../trace/quadtest1.trace -
 

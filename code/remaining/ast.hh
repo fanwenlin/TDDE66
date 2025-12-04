@@ -4,6 +4,7 @@
 #include "symtab.hh"
 #include "quads.hh"
 
+
 /* This little ascii diagram describes the inheritance structure of the
    AST classes:
 
@@ -87,46 +88,45 @@ AST_NODE
 /* The various types of AST node tags that can appear. If C++ had had an
    instanceof operator like Java, we wouldn't need this... These tags are
    set in the node constructor and should never be changed afterwards. */
-enum ast_node_types
-{
-    AST_NODE,
-    AST_STATEMENT,
-    AST_EXPRESSION,
-    AST_BINARYOPERATION,
-    AST_BINARYRELATION,
-    AST_LVALUE,
-    AST_EXPR_LIST,
-    AST_STMT_LIST,
-    AST_ELSIF_LIST,
-    AST_ID,
-    AST_INDEXED,
-    AST_ADD,
-    AST_SUB,
-    AST_OR,
-    AST_AND,
-    AST_MULT,
-    AST_DIVIDE,
-    AST_IDIV,
-    AST_MOD,
-    AST_EQUAL,
-    AST_NOTEQUAL,
-    AST_LESSTHAN,
-    AST_GREATERTHAN,
-    AST_PROCEDURECALL,
-    AST_ASSIGN,
-    AST_WHILE,
-    AST_IF,
-    AST_RETURN,
-    AST_FUNCTIONCALL,
-    AST_UMINUS,
-    AST_NOT,
-    AST_ELSIF,
-    AST_INTEGER,
-    AST_REAL,
-    AST_FUNCTIONHEAD,
-    AST_PROCEDUREHEAD,
-    AST_PARAMETER,
-    AST_CAST
+enum ast_node_types {
+  AST_NODE,
+  AST_STATEMENT,
+  AST_EXPRESSION,
+  AST_BINARYOPERATION,
+  AST_BINARYRELATION,
+  AST_LVALUE,
+  AST_EXPR_LIST,
+  AST_STMT_LIST,
+  AST_ELSIF_LIST,
+  AST_ID,
+  AST_INDEXED,
+  AST_ADD,
+  AST_SUB,
+  AST_OR,
+  AST_AND,
+  AST_MULT,
+  AST_DIVIDE,
+  AST_IDIV,
+  AST_MOD,
+  AST_EQUAL,
+  AST_NOTEQUAL,
+  AST_LESSTHAN,
+  AST_GREATERTHAN,
+  AST_PROCEDURECALL,
+  AST_ASSIGN,
+  AST_WHILE,
+  AST_IF,
+  AST_RETURN,
+  AST_FUNCTIONCALL,
+  AST_UMINUS,
+  AST_NOT,
+  AST_ELSIF,
+  AST_INTEGER,
+  AST_REAL,
+  AST_FUNCTIONHEAD,
+  AST_PROCEDUREHEAD,
+  AST_PARAMETER,
+  AST_CAST
 };
 typedef enum ast_node_types ast_node_type;
 
@@ -136,6 +136,7 @@ class quad_list;
 /* Class stubs to allow referencing the classes below before they're declared.
    See below. */
 class ast_binaryoperation;
+class ast_binaryrelation;
 class ast_stmt_list;
 class ast_id;
 class ast_integer;
@@ -151,141 +152,130 @@ class quad_list;
  * node type when downcasting is needed), and methods for printing AST nodes;
  * all of which are things common to all nodes.
  */
-class ast_node
-{
+class ast_node {
 protected:
-    // Used for AST printing.
-    static int indent_level;
-    static bool branches[10000];
+  // Used for AST printing.
+  static int indent_level;
+  static bool branches[10000];
 
-    // All these methods are concerned with printing the AST.
-    void indent(ostream &);
+  // All these methods are concerned with printing the AST.
+  void indent(ostream &);
 
-    void indent_more();
+  void indent_more();
 
-    void indent_less();
+  void indent_less();
 
-    void begin_child(ostream &);
+  void begin_child(ostream &);
 
-    void end_child(ostream &);
+  void end_child(ostream &);
 
-    void last_child(ostream &);
+  void last_child(ostream &);
 
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
-    virtual void xprint(ostream &, string);
+  virtual void xprint(ostream &, string);
 
 public:
-    //! Holds line and column number for this node.
-    position_information *pos;
+  //! Holds line and column number for this node.
+  position_information *pos;
 
-    /*! Describes what kind of node this is. We need to be able to check this
-        in a convenient way during AST optimization and C++ does not support
-        reflective programming.
-     */
-    ast_node_type tag;
+  /*! Describes what kind of node this is. We need to be able to check this
+      in a convenient way during AST optimization and C++ does not support
+      reflective programming.
+   */
+  ast_node_type tag;
 
-    // Constructor.
-    ast_node(position_information *);
+  // Constructor.
+  ast_node(position_information *);
 
-    /*! Perform type checking. See semantic.cc for the method bodies.
-     * Note that it's an error to call type_check in this class. It should
-     * only be called in the concrete AST nodes, see below.
-     */
-    virtual sym_index type_check();
+  /*! Perform type checking. See semantic.cc for the method bodies.
+   * Note that it's an error to call type_check in this class. It should
+   * only be called in the concrete AST nodes, see below.
+   */
+  virtual sym_index type_check();
 
-    /*! Perform optimization. See optimize.cc for the method bodies.
-     * Just as with type checking, it's an error to call optimize in this
-     * class. It should only be called in the concrete AST nodes.
-     */
-    virtual void optimize();
+  /*! Perform optimization. See optimize.cc for the method bodies.
+   * Just as with type checking, it's an error to call optimize in this
+   * class. It should only be called in the concrete AST nodes.
+   */
+  virtual void optimize();
 
-    /*! Generate quads. See quads.cc for the method bodies. Like type checking,
-     * generate_quads should only be called in concrete AST nodes.
-     */
-    virtual sym_index generate_quads(quad_list &) = 0;
+  /*! Generate quads. See quads.cc for the method bodies. Like type checking,
+   * generate_quads should only be called in concrete AST nodes.
+   */
+  virtual sym_index generate_quads(quad_list &) = 0;
 
-    //! Allow an AST node to be sent to an outstream for printing.
-    friend ostream &operator<<(ostream &, ast_node *);
+  //! Allow an AST node to be sent to an outstream for printing.
+  friend ostream &operator<<(ostream &, ast_node *);
 };
 
 /*! The superclass for all DIESEL constructs that do not return a value. */
-class ast_statement : public ast_node
-{
+class ast_statement : public ast_node {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_statement(position_information *);
+  // Constructor.
+  ast_statement(position_information *);
 
-    // It's an error if these methods are called. See the derived classes.
-    virtual sym_index type_check();
+  // It's an error if these methods are called. See the derived classes.
+  virtual sym_index type_check();
 
-    virtual void optimize();
+  virtual void optimize();
 
-    virtual sym_index generate_quads(quad_list &) = 0;
+  virtual sym_index generate_quads(quad_list &) = 0;
 };
 
 /*! The superclass for all DIESEL constructs that do return a value.
  * It has a #type attribute, which denotes the type of its value
  * (#real_type, #integer_type, or #void_type).
  */
-class ast_expression : public ast_node
-{
+class ast_expression : public ast_node {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The return type of this expression.
-    sym_index type;
+  //! The return type of this expression.
+  sym_index type;
 
-    // Constructors.
-    ast_expression(position_information *);
+  // Constructors.
+  ast_expression(position_information *);
 
-    ast_expression(position_information *, sym_index);
+  ast_expression(position_information *, sym_index);
 
-    // It's an error if these methods are called. See the derived classes.
-    virtual sym_index type_check();
+  // It's an error if these methods are called. See the derived classes.
+  virtual sym_index type_check();
 
-    virtual void optimize();
+  virtual void optimize();
 
-    virtual sym_index generate_quads(quad_list &) = 0;
+  virtual sym_index generate_quads(quad_list &) = 0;
 
-    // Used for safe downcasting. We could provide a mechanism to safely
-    // downcast ALL ast nodes... But these ones are the only ones we'll need
-    // in this lab course. They will be used during AST optimization.
-    // Note: It is not illegal to call these methods in other nodes than the
-    // ast_integer, ast_real - but those nodes are the only ones which will
-    // return non-NULL values.
-    virtual ast_integer *get_ast_integer()
-    {
-        return NULL;
-    }
+  // Used for safe downcasting. We could provide a mechanism to safely
+  // downcast ALL ast nodes... But these ones are the only ones we'll need
+  // in this lab course. They will be used during AST optimization.
+  // Note: It is not illegal to call these methods in other nodes than the
+  // ast_integer, ast_real - but those nodes are the only ones which will
+  // return non-NULL values.
+  virtual ast_integer *get_ast_integer() { return NULL; }
 
-    virtual ast_real *get_ast_real()
-    {
-        return NULL;
-    }
+  virtual ast_real *get_ast_real() { return NULL; }
 
-    virtual ast_id *get_ast_id()
-    {
-        return NULL;
-    }
+  virtual ast_id *get_ast_id() { return NULL; }
 
-    virtual ast_cast *get_ast_cast()
-    {
-        return NULL;
-    }
+  virtual ast_cast *get_ast_cast() { return NULL; }
 
-    // This, however, is very illegal. It's also only used in optimize.cc, to
-    // allow us to downcast an ast_expression to an ast_binaryoperation.
-    // See the comments in that file for more information.
-    virtual ast_binaryoperation *get_ast_binaryoperation()
-    {
-        fatal("Illegal downcast to ast_binaryoperation from ast_expression");
-        return NULL;
-    }
+  // This, however, is very illegal. It's also only used in optimize.cc, to
+  // allow us to downcast an ast_expression to an ast_binaryoperation.
+  // See the comments in that file for more information.
+  virtual ast_binaryoperation *get_ast_binaryoperation() {
+    fatal("Illegal downcast to ast_binaryoperation from ast_expression");
+    return NULL;
+  }
+
+  virtual ast_binaryrelation *get_ast_binaryrelation() {
+    fatal("Illegal downcast to ast_binaryrelation from ast_expression");
+    return NULL;
+  }
 };
 
 /*! Base class for all binary relation nodes. ``a < b``, etc.
@@ -295,66 +285,64 @@ public:
 
    Note: the left and right operands are defined here instead of in the
    individual subclasses, making those rather trivial. */
-class ast_binaryrelation : public ast_expression
-{
+class ast_binaryrelation : public ast_expression {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
-    virtual void xprint(ostream &, string);
+  virtual void xprint(ostream &, string);
 
 public:
-    //! Left child of the operation.
-    ast_expression *left;
-    //! Right child of the operation.
-    ast_expression *right;
+  //! Left child of the operation.
+  ast_expression *left;
+  //! Right child of the operation.
+  ast_expression *right;
 
-    // Constructor.
-    ast_binaryrelation(position_information *,
-                       ast_expression *,
-                       ast_expression *);
+  // Constructor.
+  ast_binaryrelation(position_information *, ast_expression *,
+                     ast_expression *);
 
-    // It's an error if this method is called. See the derived classes.
-    virtual sym_index type_check();
+  // It's an error if this method is called. See the derived classes.
+  virtual sym_index type_check();
 
-    virtual void optimize();
+  virtual void optimize();
 
-    virtual sym_index generate_quads(quad_list &) = 0;
+  virtual sym_index generate_quads(quad_list &) = 0;
+
+  // Needed for safe downcasting.
+  virtual ast_binaryrelation *get_ast_binaryrelation() { return this; }
 };
 
 /*! Base class for all binary operation nodes. ``a + b``, etc.
    Note: the left and right operands are defined here instead of in the
    individual subclasses, making those rather trivial. */
-class ast_binaryoperation : public ast_expression
-{
+class ast_binaryoperation : public ast_expression {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
-    virtual void xprint(ostream &, string);
+  virtual void xprint(ostream &, string);
 
 public:
-    //! Left child of the operation.
-    ast_expression *left;
-    //! Right child of the operation.
-    ast_expression *right;
+  //! Left child of the operation.
+  ast_expression *left;
+  //! Right child of the operation.
+  ast_expression *right;
 
-    // Constructor.
-    ast_binaryoperation(position_information *,
-                        ast_expression *,
-                        ast_expression *);
+  // Constructor.
+  ast_binaryoperation(position_information *, ast_expression *,
+                      ast_expression *);
 
-    // It's an error if these methods are called. See the derived classes.
-    virtual sym_index type_check();
+  // It's an error if these methods are called. See the derived classes.
+  virtual sym_index type_check();
 
-    virtual void optimize();
+  virtual void optimize();
 
-    virtual sym_index generate_quads(quad_list &) = 0;
+  virtual sym_index generate_quads(quad_list &) = 0;
 
-    // Needed for safe downcasting.
-    virtual ast_binaryoperation *get_ast_binaryoperation()
-    {
-        fatal("Illegal downcast to ast_binaryoperation");
-        return NULL;
-    }
+  // Needed for safe downcasting.
+  virtual ast_binaryoperation *get_ast_binaryoperation() {
+    fatal("Illegal downcast to ast_binaryoperation");
+    return NULL;
+  }
 };
 
 /*! The superclass for all DIESEL constructs that can be assigned a value
@@ -362,25 +350,24 @@ public:
  * The name lvalue comes from the fact that it represents expressions
  * that can appear on the left-hand side of an assignment (e.g., ``x := 2;``).
  */
-class ast_lvalue : public ast_expression
-{
+class ast_lvalue : public ast_expression {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructors.
-    ast_lvalue(position_information *);
+  // Constructors.
+  ast_lvalue(position_information *);
 
-    ast_lvalue(position_information *, sym_index);
+  ast_lvalue(position_information *, sym_index);
 
-    // It's an error if this method is called. See the derived classes.
-    virtual sym_index type_check();
+  // It's an error if this method is called. See the derived classes.
+  virtual sym_index type_check();
 
-    virtual void optimize();
+  virtual void optimize();
 
-    virtual sym_index generate_quads(quad_list &) = 0;
+  virtual sym_index generate_quads(quad_list &) = 0;
 
-    virtual void generate_assignment(quad_list &, sym_index) = 0;
+  virtual void generate_assignment(quad_list &, sym_index) = 0;
 };
 
 /*** Concrete classes - these nodes actually appear in the AST. ***/
@@ -390,67 +377,63 @@ public:
 /*! represents an ``elsif`` clause inside an ``if``-statement.
  * The class is a bit special, so it inherits directly from ast_node.
  */
-class ast_elsif : public ast_node
-{
+class ast_elsif : public ast_node {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The test condition; decides if we should execute the body.
-    ast_expression *condition;
+  //! The test condition; decides if we should execute the body.
+  ast_expression *condition;
 
-    //! The body to execute if the condition evaluates to *true*.
-    ast_stmt_list *body;
+  //! The body to execute if the condition evaluates to *true*.
+  ast_stmt_list *body;
 
-    // Constructor.
-    ast_elsif(position_information *, ast_expression *, ast_stmt_list *);
+  // Constructor.
+  ast_elsif(position_information *, ast_expression *, ast_stmt_list *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    virtual void generate_quads_and_jump(quad_list &, int);
+  virtual void generate_quads_and_jump(quad_list &, int);
 };
 
 /*! Contains a list of expressions. Currently only used for parameter lists.
 
    Note: The parameters will be stored in reverse order! This is due to how the
          grammar is written, it's easiest this way. */
-class ast_expr_list : public ast_node
-{
+class ast_expr_list : public ast_node {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! Points to the last (last added) expression in the list.
-    ast_expression *last_expr;
+  //! Points to the last (last added) expression in the list.
+  ast_expression *last_expr;
 
-    //! Points to a list of the preceding expressions. Is ``NULL`` when empty.
-    ast_expr_list *preceding;
+  //! Points to a list of the preceding expressions. Is ``NULL`` when empty.
+  ast_expr_list *preceding;
 
-    //! Constructor for the first element of a list.
-    ast_expr_list(position_information *, ast_expression *);
+  //! Constructor for the first element of a list.
+  ast_expr_list(position_information *, ast_expression *);
 
-    //! Constructor to add a new expression to the list.
-    ast_expr_list(position_information *, ast_expression *, ast_expr_list *);
+  //! Constructor to add a new expression to the list.
+  ast_expr_list(position_information *, ast_expression *, ast_expr_list *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    virtual void generate_parameter_list(quad_list &,
-                                         parameter_symbol *,
-                                         int *);
+  virtual void generate_parameter_list(quad_list &, parameter_symbol *, int *);
 };
 
 /*! Contains a list of statements.
@@ -518,121 +501,119 @@ Example:
   id11 [label="f"];
 \endverbatim
   */
-class ast_stmt_list : public ast_node
-{
+class ast_stmt_list : public ast_node {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! Points to the last (last added) statement in the list.
-    ast_statement *last_stmt;
+  //! Points to the last (last added) statement in the list.
+  ast_statement *last_stmt;
 
-    //! Points to a list of the preceding statements. Is ``NULL`` when empty.
-    ast_stmt_list *preceding;
+  //! Points to a list of the preceding statements. Is ``NULL`` when empty.
+  ast_stmt_list *preceding;
 
-    //! Constructor for the first element of a list.
-    ast_stmt_list(position_information *, ast_statement *);
+  //! Constructor for the first element of a list.
+  ast_stmt_list(position_information *, ast_statement *);
 
-    //! Constructor to add a new statement to the list.
-    ast_stmt_list(position_information *, ast_statement *, ast_stmt_list *);
+  //! Constructor to add a new statement to the list.
+  ast_stmt_list(position_information *, ast_statement *, ast_stmt_list *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*! Contains a list of elsif clauses. */
-class ast_elsif_list : public ast_node
-{
+class ast_elsif_list : public ast_node {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! Points to the last (last added) elsif clause in the list.
-    ast_elsif *last_elsif;
+  //! Points to the last (last added) elsif clause in the list.
+  ast_elsif *last_elsif;
 
-    //! Points to a list of the preceding elsif clauses. Is ``NULL`` when empty.
-    ast_elsif_list *preceding;
+  //! Points to a list of the preceding elsif clauses. Is ``NULL`` when empty.
+  ast_elsif_list *preceding;
 
-    //! Constructor for the first element of a list.
-    ast_elsif_list(position_information *, ast_elsif *);
+  //! Constructor for the first element of a list.
+  ast_elsif_list(position_information *, ast_elsif *);
 
-    //! Constructor to add a new elsif clause to the list.
-    ast_elsif_list(position_information *, ast_elsif *, ast_elsif_list *);
+  //! Constructor to add a new elsif clause to the list.
+  ast_elsif_list(position_information *, ast_elsif *, ast_elsif_list *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    virtual void generate_quads_and_jump(quad_list &, int);
+  virtual void generate_quads_and_jump(quad_list &, int);
 };
 
 /*! A node used to transfer information about an environment. Used in parser.y
    for setting the proper return type of a function, and type checking.
    It is never part of a function body. */
-class ast_functionhead : public ast_node
-{
+class ast_functionhead : public ast_node {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! Pointer to the function in the symbol table.
-    sym_index sym_p;
+  //! Pointer to the function in the symbol table.
+  sym_index sym_p;
 
-    // Constructor.
-    ast_functionhead(position_information *, sym_index);
+  // Constructor.
+  ast_functionhead(position_information *, sym_index);
 
-    // Only here since we're using abstract virtual methods in ast_node.
-    virtual void optimize();
+  // Only here since we're using abstract virtual methods in ast_node.
+  virtual void optimize();
 
-    virtual sym_index generate_quads(quad_list &);
+  virtual sym_index generate_quads(quad_list &);
 
-    /*!
-    Starts the generation of a quad list for a program block pointed to by the argument.
-    It then adds on the last label quad, and returns the list when it is done.
+  /*!
+  Starts the generation of a quad list for a program block pointed to by the
+  argument. It then adds on the last label quad, and returns the list when it is
+  done.
 
-    \param s the function body to generate quads for.
-    */
-    quad_list *do_quads(ast_stmt_list *s);
+  \param s the function body to generate quads for.
+  */
+  quad_list *do_quads(ast_stmt_list *s);
 };
 
 /*! A node used to transfer information about an environment. Used in parser.y
    for setting the proper return type of a procedure. It is never part of a
    procedure body. */
-class ast_procedurehead : public ast_node
-{
+class ast_procedurehead : public ast_node {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! Pointer to the procedure in the symbol table.
-    sym_index sym_p;
+  //! Pointer to the procedure in the symbol table.
+  sym_index sym_p;
 
-    // Constructor.
-    ast_procedurehead(position_information *, sym_index);
+  // Constructor.
+  ast_procedurehead(position_information *, sym_index);
 
-    // Only here since we're using abstract virtual methods in ast_node.
-    virtual void optimize();
+  // Only here since we're using abstract virtual methods in ast_node.
+  virtual void optimize();
 
-    virtual sym_index generate_quads(quad_list &);
+  virtual sym_index generate_quads(quad_list &);
 
-    /*!
-    Starts the generation of a quad list for a program block pointed to by the argument.
-    It then adds on the last label quad, and returns the list when it is done.
+  /*!
+  Starts the generation of a quad list for a program block pointed to by the
+  argument. It then adds on the last label quad, and returns the list when it is
+  done.
 
-    \param s the procedure body to generate quads for.
-    */
-    quad_list *do_quads(ast_stmt_list *s);
+  \param s the procedure body to generate quads for.
+  */
+  quad_list *do_quads(ast_stmt_list *s);
 };
 
 /*** Classes derived from ast_statement ***/
@@ -697,29 +678,28 @@ Example:
 \endverbatim
 
 */
-class ast_procedurecall : public ast_statement
-{
+class ast_procedurecall : public ast_statement {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The procedure's id node, contains a link to the symbol table.
-    ast_id *id;
+  //! The procedure's id node, contains a link to the symbol table.
+  ast_id *id;
 
-    //! A list of eventual parameters. If no parameters, this list is NULL.
-    ast_expr_list *parameter_list;
+  //! A list of eventual parameters. If no parameters, this list is NULL.
+  ast_expr_list *parameter_list;
 
-    // Constructor.
-    ast_procedurecall(position_information *, ast_id *, ast_expr_list *);
+  // Constructor.
+  ast_procedurecall(position_information *, ast_id *, ast_expr_list *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*! Assignment node. ``a := b`` or ``a[i] = b``.
@@ -728,58 +708,56 @@ public:
   not return a value. Constructs of the type ``a := (b := 2);`` are not
   allowed in DIESEL.
  */
-class ast_assign : public ast_statement
-{
+class ast_assign : public ast_statement {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The left hand side (lhs), ie, the variable being assigned to.
-    ast_lvalue *lhs;
+  //! The left hand side (lhs), ie, the variable being assigned to.
+  ast_lvalue *lhs;
 
-    //! The right hand side (rhs), ie, the value being assigned.
-    ast_expression *rhs;
+  //! The right hand side (rhs), ie, the value being assigned.
+  ast_expression *rhs;
 
-    // Constructor.
-    ast_assign(position_information *, ast_lvalue *, ast_expression *);
+  // Constructor.
+  ast_assign(position_information *, ast_lvalue *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*! A while loop. Contains a test condition and a loop body.
 
  Compare this to other conditional nodes (e.g. ``ast_elsif``, ``ast_if``).
  */
-class ast_while : public ast_statement
-{
+class ast_while : public ast_statement {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The test condition.
-    ast_expression *condition;
+  //! The test condition.
+  ast_expression *condition;
 
-    //! The loop body.
-    ast_stmt_list *body;
+  //! The loop body.
+  ast_stmt_list *body;
 
-    // Constructor.
-    ast_while(position_information *, ast_expression *, ast_stmt_list *);
+  // Constructor.
+  ast_while(position_information *, ast_expression *, ast_stmt_list *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*! An if clause. Has lots of children. if - then - elsif - else.
@@ -889,39 +867,35 @@ Example:
   ast_uminus -> "ast_integer\n1";
 \endverbatim
  */
-class ast_if : public ast_statement
-{
+class ast_if : public ast_statement {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The primary if-condition.
-    ast_expression *condition;
+  //! The primary if-condition.
+  ast_expression *condition;
 
-    //! The primary if-body, executed if #condition evaluates to non-zero.
-    ast_stmt_list *body;
+  //! The primary if-body, executed if #condition evaluates to non-zero.
+  ast_stmt_list *body;
 
-    //! A list of elsif clauses. May be NULL.
-    ast_elsif_list *elsif_list;
+  //! A list of elsif clauses. May be NULL.
+  ast_elsif_list *elsif_list;
 
-    //! The else body, executed if 'condition' evaluates to zero. May be NULL.
-    ast_stmt_list *else_body;
+  //! The else body, executed if 'condition' evaluates to zero. May be NULL.
+  ast_stmt_list *else_body;
 
-    // Constructor.
-    ast_if(position_information *,
-           ast_expression *,
-           ast_stmt_list *,
-           ast_elsif_list *,
-           ast_stmt_list *);
+  // Constructor.
+  ast_if(position_information *, ast_expression *, ast_stmt_list *,
+         ast_elsif_list *, ast_stmt_list *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*! A return statement, used both for procedures and functions.
@@ -932,29 +906,28 @@ public:
   stand on the right-hand side of an assignment since it inherits
   ``ast_statement``.
   */
-class ast_return : public ast_statement
-{
+class ast_return : public ast_statement {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The return value.
-    ast_expression *value;
+  //! The return value.
+  ast_expression *value;
 
-    //! Constructor for no return value.
-    ast_return(position_information *);
+  //! Constructor for no return value.
+  ast_return(position_information *);
 
-    //! Constructor with a return value.
-    ast_return(position_information *, ast_expression *);
+  //! Constructor with a return value.
+  ast_return(position_information *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*** Classes derived from ast_expression ***/
@@ -969,136 +942,125 @@ public:
  than the execution of the function body, except in certain cases
  involving recursive function calls.
  */
-class ast_functioncall : public ast_expression
-{
+class ast_functioncall : public ast_expression {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The function's id node, contains a link to the symbol table.
-    ast_id *id;
+  //! The function's id node, contains a link to the symbol table.
+  ast_id *id;
 
-    //! A list of actual parameters. If no parameters, this list is NULL.
-    ast_expr_list *parameter_list;
+  //! A list of actual parameters. If no parameters, this list is NULL.
+  ast_expr_list *parameter_list;
 
-    // Constructor.
-    ast_functioncall(position_information *, ast_id *, ast_expr_list *);
+  // Constructor.
+  ast_functioncall(position_information *, ast_id *, ast_expr_list *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*! A unary minus node.
 
  Note that there is no unary plus.
  */
-class ast_uminus : public ast_expression
-{
+class ast_uminus : public ast_expression {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The expression to negate.
-    ast_expression *expr;
+  //! The expression to negate.
+  ast_expression *expr;
 
-    // Constructor.
-    ast_uminus(position_information *, ast_expression *);
+  // Constructor.
+  ast_uminus(position_information *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*! A logical negation node. */
-class ast_not : public ast_expression
-{
+class ast_not : public ast_expression {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The expression being negated.
-    ast_expression *expr;
+  //! The expression being negated.
+  ast_expression *expr;
 
-    // Constructor.
-    ast_not(position_information *, ast_expression *);
+  // Constructor.
+  ast_not(position_information *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*! An integer node. Represents an integer number, like ``5``. */
-class ast_integer : public ast_expression
-{
+class ast_integer : public ast_expression {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The integer value of the node.
-    long value;
+  //! The integer value of the node.
+  long value;
 
-    // Constructor.
-    ast_integer(position_information *, long);
+  // Constructor.
+  ast_integer(position_information *, long);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    // Safe downcasting.
-    virtual ast_integer *get_ast_integer()
-    {
-        return this;
-    }
+  // Safe downcasting.
+  virtual ast_integer *get_ast_integer() { return this; }
 };
 
 /*! A real node. Represents a real number, like ``2.5``. */
-class ast_real : public ast_expression
-{
+class ast_real : public ast_expression {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The floating point value of the node.
-    double value;
+  //! The floating point value of the node.
+  double value;
 
-    // Constructor.
-    ast_real(position_information *, double);
+  // Constructor.
+  ast_real(position_information *, double);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    // Safe downcasting.
-    virtual ast_real *get_ast_real()
-    {
-        return this;
-    }
+  // Safe downcasting.
+  virtual ast_real *get_ast_real() { return this; }
 };
 
 /*! A cast node.
@@ -1106,111 +1068,103 @@ public:
  This class represents type transformation, casting an integer to a real.
  It is inserted into the AST at appropriate places during type checking.
  See semantic.cc. */
-class ast_cast : public ast_expression
-{
+class ast_cast : public ast_expression {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The expression to cast to real.
-    ast_expression *expr;
+  //! The expression to cast to real.
+  ast_expression *expr;
 
-    // Constructor.
-    ast_cast(position_information *, ast_expression *);
+  // Constructor.
+  ast_cast(position_information *, ast_expression *);
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    // Safe downcasting.
-    virtual ast_cast *get_ast_cast()
-    {
-        return this;
-    }
+  // Safe downcasting.
+  virtual ast_cast *get_ast_cast() { return this; }
 };
 
 /*** Classes derived from ast_binaryrelation ***/
 
 /*! Equality operator. ``a = b``. */
-class ast_equal : public ast_binaryrelation
-{
+class ast_equal : public ast_binaryrelation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_equal(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_equal(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*! Not-equal operator. ``a <> b``. */
-class ast_notequal : public ast_binaryrelation
-{
+class ast_notequal : public ast_binaryrelation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_notequal(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_notequal(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*! Less than operator. ``a < b``. */
-class ast_lessthan : public ast_binaryrelation
-{
+class ast_lessthan : public ast_binaryrelation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_lessthan(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_lessthan(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*! Greater than operator. ``a > b``. */
-class ast_greaterthan : public ast_binaryrelation
-{
+class ast_greaterthan : public ast_binaryrelation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_greaterthan(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_greaterthan(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 };
 
 /*** Classes derived from ast_binaryoperation ***/
@@ -1239,245 +1193,211 @@ public:
    }
 \endverbatim
  */
-class ast_add : public ast_binaryoperation
-{
+class ast_add : public ast_binaryoperation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_add(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_add(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    // Safe downcasts.
-    virtual ast_add *get_ast_binaryoperation()
-    {
-        return this;
-    }
+  // Safe downcasts.
+  virtual ast_add *get_ast_binaryoperation() { return this; }
 };
 
 /*! Minus node. ``a - b``. */
-class ast_sub : public ast_binaryoperation
-{
+class ast_sub : public ast_binaryoperation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_sub(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_sub(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    // Safe downcasts.
-    virtual ast_sub *get_ast_binaryoperation()
-    {
-        return this;
-    }
+  // Safe downcasts.
+  virtual ast_sub *get_ast_binaryoperation() { return this; }
 };
 
 /*! Logical OR node. ``a OR b``. */
-class ast_or : public ast_binaryoperation
-{
+class ast_or : public ast_binaryoperation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_or(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_or(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    // Safe downcasts.
-    virtual ast_or *get_ast_binaryoperation()
-    {
-        return this;
-    }
+  // Safe downcasts.
+  virtual ast_or *get_ast_binaryoperation() { return this; }
 };
 
 /*! Logical AND node. ``a AND b``. */
-class ast_and : public ast_binaryoperation
-{
+class ast_and : public ast_binaryoperation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_and(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_and(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    // Safe downcasts.
-    virtual ast_and *get_ast_binaryoperation()
-    {
-        return this;
-    }
+  // Safe downcasts.
+  virtual ast_and *get_ast_binaryoperation() { return this; }
 };
 
 /*! Multiplication node. ``a * b``. */
-class ast_mult : public ast_binaryoperation
-{
+class ast_mult : public ast_binaryoperation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_mult(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_mult(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    // Safe downcasts.
-    virtual ast_mult *get_ast_binaryoperation()
-    {
-        return this;
-    }
+  // Safe downcasts.
+  virtual ast_mult *get_ast_binaryoperation() { return this; }
 };
 
-/*! Real division node. ``a / b``, where at least one of a and b have real type. */
-class ast_divide : public ast_binaryoperation
-{
+/*! Real division node. ``a / b``, where at least one of a and b have real type.
+ */
+class ast_divide : public ast_binaryoperation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_divide(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_divide(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    // Safe downcasts.
-    virtual ast_divide *get_ast_binaryoperation()
-    {
-        return this;
-    }
+  // Safe downcasts.
+  virtual ast_divide *get_ast_binaryoperation() { return this; }
 };
 
-/*! Integer division node. ``a div b``, where both operands have integer type. */
-class ast_idiv : public ast_binaryoperation
-{
+/*! Integer division node. ``a div b``, where both operands have integer type.
+ */
+class ast_idiv : public ast_binaryoperation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_idiv(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_idiv(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    // Safe downcasts.
-    virtual ast_idiv *get_ast_binaryoperation()
-    {
-        return this;
-    }
+  // Safe downcasts.
+  virtual ast_idiv *get_ast_binaryoperation() { return this; }
 };
 
 /*! Integer mod node. ``a mod b``, where both operands have integer type. */
-class ast_mod : public ast_binaryoperation
-{
+class ast_mod : public ast_binaryoperation {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    // Constructor.
-    ast_mod(position_information *, ast_expression *, ast_expression *);
+  // Constructor.
+  ast_mod(position_information *, ast_expression *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    // Safe downcasts.
-    virtual ast_mod *get_ast_binaryoperation()
-    {
-        return this;
-    }
+  // Safe downcasts.
+  virtual ast_mod *get_ast_binaryoperation() { return this; }
 };
 
 /*! An identifier node. Can be the name of a variable, function, constant,
    etc... */
-class ast_id : public ast_lvalue
-{
+class ast_id : public ast_lvalue {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! A symbol table index for this symbol.
-    sym_index sym_p;
+  //! A symbol table index for this symbol.
+  sym_index sym_p;
 
-    // Constructors.
-    ast_id(position_information *);
+  // Constructors.
+  ast_id(position_information *);
 
-    ast_id(position_information *, sym_index);
+  ast_id(position_information *, sym_index);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    virtual void generate_assignment(quad_list &, sym_index);
+  virtual void generate_assignment(quad_list &, sym_index);
 
-    // Safe downcasting.
-    virtual ast_id *get_ast_id()
-    {
-        return this;
-    }
+  // Safe downcasting.
+  virtual ast_id *get_ast_id() { return this; }
 };
 
 /*! An array identifier node. Index must be of integer type.
@@ -1515,31 +1435,30 @@ Example:
   add -> i3;
 \endverbatim
  */
-class ast_indexed : public ast_lvalue
-{
+class ast_indexed : public ast_lvalue {
 protected:
-    virtual void print(ostream &);
+  virtual void print(ostream &);
 
 public:
-    //! The array's id node, which contains a link into the symbol table.
-    ast_id *id;
+  //! The array's id node, which contains a link into the symbol table.
+  ast_id *id;
 
-    //! The index expression. Must be of type integer.
-    ast_expression *index;
+  //! The index expression. Must be of type integer.
+  ast_expression *index;
 
-    // Constructor.
-    ast_indexed(position_information *, ast_id *, ast_expression *);
+  // Constructor.
+  ast_indexed(position_information *, ast_id *, ast_expression *);
 
-    // Perform type checking.
-    virtual sym_index type_check();
+  // Perform type checking.
+  virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
+  // AST optimization.
+  virtual void optimize();
 
-    // Quad generation.
-    virtual sym_index generate_quads(quad_list &);
+  // Quad generation.
+  virtual sym_index generate_quads(quad_list &);
 
-    virtual void generate_assignment(quad_list &, sym_index);
+  virtual void generate_assignment(quad_list &, sym_index);
 };
 
 /* Allow a node to be sent to an outstream for printing. */
