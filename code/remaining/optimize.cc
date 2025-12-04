@@ -253,10 +253,10 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
       case AST_OR:
         // cout << "folding or " << binop->left << " and " << binop->right
         //  << " result is " << (left_int | right_int) << endl;
-        return new ast_integer(binop->pos, left_int | right_int);
+        return new ast_integer(binop->pos, left_int || right_int);
         break;
       case AST_AND:
-        return new ast_integer(binop->pos, left_int & right_int);
+        return new ast_integer(binop->pos, left_int && right_int);
         break;
       default:
         fatal("Trying to fold unknown binary operation");
