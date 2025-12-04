@@ -278,9 +278,6 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
       case AST_DIVIDE:
         return new ast_real(binop->pos, left_real / right_real);
         break;
-      case AST_MOD:
-        return new ast_real(binop->pos, fmod(left_real, right_real));
-        break;
       default:
         fatal("Trying to fold unknown binary operation");
       }
