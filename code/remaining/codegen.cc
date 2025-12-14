@@ -162,6 +162,9 @@ void code_generator::frame_address(int level, const register_type dest) {
    register. */
 void code_generator::fetch(sym_index sym_p, register_type dest) {
   /* Your code here */
+  if (sym_p == NULL_SYM) {
+    return;
+  }
   // if variable
   symbol *sym = sym_tab->get_symbol(sym_p);
   if (sym->tag == SYM_VAR) {
@@ -181,6 +184,9 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
 
 void code_generator::fetch_float(sym_index sym_p) {
   /* Your code here */
+  if (sym_p == NULL_SYM) {
+    return;
+  }
   symbol *sym = sym_tab->get_symbol(sym_p);
   if (sym->tag == SYM_VAR) {
     block_level level;
@@ -209,6 +215,9 @@ void code_generator::fetch_float(sym_index sym_p) {
 /* This function stores the value of a register into a variable. */
 void code_generator::store(register_type src, sym_index sym_p) {
   /* Your code here */
+  if (sym_p == NULL_SYM) {
+    return;
+  }
   block_level level;
   int offset;
   find(sym_p, &level, &offset);
@@ -219,6 +228,9 @@ void code_generator::store(register_type src, sym_index sym_p) {
 
 void code_generator::store_float(sym_index sym_p) {
   /* Your code here */
+  if (sym_p == NULL_SYM) {
+    return;
+  }
   block_level level;
   int offset;
   find(sym_p, &level, &offset);
