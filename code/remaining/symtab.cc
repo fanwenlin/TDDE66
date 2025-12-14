@@ -169,9 +169,8 @@ long symbol_table::get_next_label() {
    an error. This method is used for quad generation. */
 sym_index symbol_table::gen_temp_var(sym_index type) {
   /* Your code here */
-  // todo it seems not used in lab2
   char temp_var[MAX_TEMP_VAR_LENGTH + 1];
-  snprintf(temp_var, MAX_TEMP_VAR_LENGTH + 1, "$%ld", temp_nr++);
+  snprintf(temp_var, MAX_TEMP_VAR_LENGTH + 1, "$%ld", ++temp_nr);
   pool_index temp_var_idx = pool_install(temp_var);
   sym_index temp_var_sym = install_symbol(temp_var_idx, SYM_VAR);
   sym_table[temp_var_sym]->type = type;

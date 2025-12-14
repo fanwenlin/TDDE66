@@ -87,6 +87,10 @@ lab5out: all
 lab6: all
 	- ./diesel -b -q -y ../testpgm/quadtest1.d 2>&1 | diff -ub ../trace/quadtest1.trace -
 
+lab6out: all
+	- ./diesel -b -q -y ../testpgm/quadtest1.d 2>&1
+
+
 lab7: all
 	- ./diesel -y ../testpgm/codetest1.d 2>&1 | diff -ub ../trace/codetest1.trace -
 	diff -ub ../trace/codetest1.dout d.out
