@@ -106,13 +106,13 @@ void code_generator::prologue(symbol *new_env) {
     out << "sub" << "\t" << "rax, 1" << endl;
 
     // loop label
-
-    out << "L" << ++label_nr << ":" << endl;
+    long next_label = sym_tab->get_next_label();
+    out << "L" << next_label << ":" << endl;
     // we always need to copy at least one item, except for Main
     out << "push" << "\t" << "[rax]" << endl;
     out << "cmp" << "\t" << "[rax], rbp" << endl;
     // if not equal, continue the loop
-    out << "jne" << "\t" << "L" << label_nr << endl;
+    out << "jne" << "\t" << "L" << next_label << endl;
   }
 
   // at the end of DISPLAY area set our own RBP, as stored in rcx before
