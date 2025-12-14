@@ -235,9 +235,9 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                     } else {
                         sym_index const_loc = sym_tab->enter_constant(pos, $1, real_type, ref_sym->const_value.rval);
                     }
-                    
+
                 }
-                
+
                 ;
 
 
@@ -256,7 +256,7 @@ var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                     /* Your code here */
                     position_information *pos = new position_information(@1.first_line,  @1.first_column);
                     sym_index var_type_id = $3->sym_p;
-                    
+
                     sym_index var_loc = sym_tab->enter_variable(pos, $1, var_type_id);
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET integer T_RIGHTBRACKET T_OF type_id T_SEMICOLON
@@ -314,7 +314,7 @@ var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                         }
                     }
                 }
-                
+
                 ;
 
 
@@ -436,7 +436,7 @@ proc_decl       : proc_head opt_param_list T_SEMICOLON const_part variable_part
 
 func_decl       : func_head opt_param_list T_COLON type_id T_SEMICOLON const_part variable_part
                 {
-                    /* Your code here */                    
+                    /* Your code here */
                     sym_tab->set_symbol_type($1->sym_p, $4->sym_p);
                     $$ = $1;
                 }
@@ -598,7 +598,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                     position_information *pos = new position_information(@1.first_line,  @1.first_column);
                     $$ = new ast_return(pos);
                 }
-                
+
                 | /* empty */
                 {
                     /* Your code here */
@@ -634,7 +634,7 @@ rvariable       : rvar_id
                     position_information *pos = new position_information(@1.first_line,  @1.first_column);
                     $$ = new ast_indexed(pos, $1, $3);
                 }
-                
+
                 ;
 
 
@@ -837,7 +837,7 @@ factor          : rvariable
                     /* Your code here */
                     $$ = $2;
                 }
-                
+
                 ;
 
 
@@ -847,7 +847,7 @@ func_call       : func_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                     position_information *pos = new position_information(@1.first_line,  @1.first_column);
                     $$ = new ast_functioncall(pos, $1, $3);
                 }
-                
+
                 ;
 
 
