@@ -4,6 +4,6 @@ ast.o: ast.cc ast.hh symtab.hh error.hh quads.hh
 semantic.o: semantic.cc semantic.hh ast.hh symtab.hh error.hh quads.hh
 optimize.o: optimize.cc optimize.hh ast.hh symtab.hh error.hh quads.hh
 quads.o: quads.cc quads.hh ast.hh symtab.hh error.hh
-codegen.o: codegen.cc symtab.hh error.hh quads.hh ast.hh codegen.hh
+codegen.o: codegen.cc codegen.hh quads.hh ast.hh symtab.hh error.hh
 error.o: error.cc error.hh
 main.o: main.cc ast.hh symtab.hh error.hh quads.hh parser.hh

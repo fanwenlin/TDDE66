@@ -155,26 +155,93 @@ void code_generator::find(sym_index sym_p, int *level, int *offset) {
  */
 void code_generator::frame_address(int level, const register_type dest) {
   /* Your code here */
+  out << "mov" << "\t" << reg[dest] << ", [rbp - " << level * 8 << "]" << endl;
 }
 
 /* This function fetches the value of a variable or a constant into a
    register. */
 void code_generator::fetch(sym_index sym_p, register_type dest) {
   /* Your code here */
+  // if variable
+  symbol *sym = sym_tab->get_symbol(sym_p);
+  if (sym->tag == SYM_VAR) {
+    block_level level;
+    int offset;
+    find(sym_p, &level, &offset);
+    // store the frame's address into the register first, then find with offset
+    frame_address(level, dest);
+    out << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << " - "
+        << offset * 8 << "]" << endl;
+  } else if (sym->tag == SYM_CONST) {
+    // const
+    out << "mov" << "\t" << reg[dest] << ", "
+        << sym->get_constant_symbol()->const_value.ival << endl;
+  }
 }
 
-void code_generator::fetch_float(sym_index sym_p) { /* Your code here */ }
+void code_generator::fetch_float(sym_index sym_p) {
+  /* Your code here */
+  symbol *sym = sym_tab->get_symbol(sym_p);
+  if (sym->tag == SYM_VAR) {
+    block_level level;
+    int offset;
+    find(sym_p, &level, &offset);
+    // borrow RAX as a temporary register, store it's value into the stack first
+    out << "push" << "\t" << "RAX" << endl;
+    // store the frame's address into the register first, then find with offset
+    frame_address(level, RAX);
+    out << "fld" << "\t"
+        << "[RAX - " << offset * 8 << "] " << endl;
+
+    // restore the value of RAX
+    out << "pop" << "\t" << "RAX" << endl;
+  } else {
+    // const
+    // store the constant value into top of stack
+    out << "push" << "\t" << sym->get_constant_symbol()->const_value.rval
+        << endl;
+    out << "fld" << "\t" << "ST(0)" << endl;
+    // pop the value (dont need accept)
+    out << "add" << "\t" << "rsp, 8" << endl;
+  }
+}
 
 /* This function stores the value of a register into a variable. */
 void code_generator::store(register_type src, sym_index sym_p) {
   /* Your code here */
+  block_level level;
+  int offset;
+  find(sym_p, &level, &offset);
+  // store the frame's address into the register first, then find with offset
+  frame_address(level, RAX);
+  out << "mov" << "\t" << "[RAX - " << offset * 8 << "], " << reg[src] << endl;
 }
 
-void code_generator::store_float(sym_index sym_p) { /* Your code here */ }
+void code_generator::store_float(sym_index sym_p) {
+  /* Your code here */
+  block_level level;
+  int offset;
+  find(sym_p, &level, &offset);
+  // borrow RAX as a temporary register, store it's value into the stack first
+  out << "push" << "\t" << "RAX" << endl;
+  // store the frame's address into the register first, then find with offset
+  frame_address(level, RAX);
+  out << "fld" << "\t" << "[RAX - " << offset * 8 << "] " << endl;
+
+  // restore the value of RAX
+  out << "pop" << "\t" << "RAX" << endl;
+}
 
 /* This function fetches the base address of an array. */
 void code_generator::array_address(sym_index sym_p, register_type dest) {
   /* Your code here */
+  block_level level;
+  int offset;
+  find(sym_p, &level, &offset);
+  // store the frame's address into the register first, then find with offset
+  frame_address(level, dest);
+  out << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << " - " << offset * 8
+      << "]" << endl;
 }
 
 /* This method expands a quad_list into assembler code, quad for quad. */
