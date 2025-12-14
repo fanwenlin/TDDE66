@@ -87,13 +87,13 @@ void code_generator::prologue(symbol *new_env) {
   /* Your code here */
 
   // store the previous RBP
-  out << "push" << "\t" << "rbp" << endl;
+  out << "\t\t" << "push" << "\t" << "rbp" << endl;
 
   // save the previous RSP in a temporary location
   // this is also this frame's RBP
   // we will set it into RBP register later, after we set DISPLAY area for this
   // frame
-  out << "mov" << "\t" << "rcx, rsp" << endl;
+  out << "\t\t" << "mov" << "\t" << "rcx, rsp" << endl;
 
   // now RBP still is the old RBP
   // we can loop downward while copying, from RBP-1, until it's value equals RBP
@@ -102,26 +102,26 @@ void code_generator::prologue(symbol *new_env) {
 
     // set the loop pointer
 
-    out << "mov" << "\t" << "rax, rbp" << endl;
-    out << "sub" << "\t" << "rax, 1" << endl;
+    out << "\t\t" << "mov" << "\t" << "rax, rbp" << endl;
+    out << "\t\t" << "sub" << "\t" << "rax, 1" << endl;
 
     // loop label
     long next_label = sym_tab->get_next_label();
     out << "L" << next_label << ":" << endl;
     // we always need to copy at least one item, except for Main
-    out << "push" << "\t" << "[rax]" << endl;
-    out << "cmp" << "\t" << "[rax], rbp" << endl;
+    out << "\t\t" << "push" << "\t" << "[rax]" << endl;
+    out << "\t\t" << "cmp" << "\t" << "[rax], rbp" << endl;
     // if not equal, continue the loop
-    out << "jne" << "\t" << "L" << next_label << endl;
+    out << "\t\t" << "jne" << "\t" << "L" << next_label << endl;
   }
 
   // at the end of DISPLAY area set our own RBP, as stored in rcx before
-  out << "push" << "\t" << "rcx" << endl;
+  out << "\t\t" << "push" << "\t" << "rcx" << endl;
   // also set our RBP register, as stored before
-  out << "mov" << "\t" << "rbp, rcx" << endl;
+  out << "\t\t" << "mov" << "\t" << "rbp, rcx" << endl;
 
   // allocate space for the local variables
-  out << "sub" << "\t" << "rsp, " << ar_size << endl;
+  out << "\t\t" << "sub" << "\t" << "rsp, " << ar_size << endl;
 
   out << flush;
 }
@@ -134,8 +134,8 @@ void code_generator::epilogue(symbol *old_env) {
   }
 
   /* Your code here */
-  out << "leave" << endl;
-  out << "ret" << endl;
+  out << "\t\t" << "leave" << endl;
+  out << "\t\t" << "ret" << endl;
 
   out << flush;
 }
@@ -155,7 +155,7 @@ void code_generator::find(sym_index sym_p, int *level, int *offset) {
  */
 void code_generator::frame_address(int level, const register_type dest) {
   /* Your code here */
-  out << "mov" << "\t" << reg[dest] << ", [rbp - " << level * 8 << "]" << endl;
+  out << "\t\t" << "mov" << "\t" << reg[dest] << ", [rbp - " << level * 8 << "]" << endl;
 }
 
 /* This function fetches the value of a variable or a constant into a
@@ -173,11 +173,11 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
     find(sym_p, &level, &offset);
     // store the frame's address into the register first, then find with offset
     frame_address(level, dest);
-    out << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << " - "
+    out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << " - "
         << offset * 8 << "]" << endl;
   } else if (sym->tag == SYM_CONST) {
     // const
-    out << "mov" << "\t" << reg[dest] << ", "
+    out << "\t\t" << "mov" << "\t" << reg[dest] << ", "
         << sym->get_constant_symbol()->const_value.ival << endl;
   }
 }
@@ -193,22 +193,22 @@ void code_generator::fetch_float(sym_index sym_p) {
     int offset;
     find(sym_p, &level, &offset);
     // borrow RAX as a temporary register, store it's value into the stack first
-    out << "push" << "\t" << "RAX" << endl;
+    out << "\t\t" << "push" << "\t" << "RAX" << endl;
     // store the frame's address into the register first, then find with offset
     frame_address(level, RAX);
-    out << "fld" << "\t"
+    out << "\t\t" << "fld" << "\t"
         << "[RAX - " << offset * 8 << "] " << endl;
 
     // restore the value of RAX
-    out << "pop" << "\t" << "RAX" << endl;
+    out << "\t\t" << "pop" << "\t" << "RAX" << endl;
   } else {
     // const
     // store the constant value into top of stack
-    out << "push" << "\t" << sym->get_constant_symbol()->const_value.rval
+    out << "\t\t" << "push" << "\t" << sym->get_constant_symbol()->const_value.rval
         << endl;
-    out << "fld" << "\t" << "ST(0)" << endl;
+    out << "\t\t" << "fld" << "\t" << "ST(0)" << endl;
     // pop the value (dont need accept)
-    out << "add" << "\t" << "rsp, 8" << endl;
+    out << "\t\t" << "add" << "\t" << "rsp, 8" << endl;
   }
 }
 
@@ -223,7 +223,7 @@ void code_generator::store(register_type src, sym_index sym_p) {
   find(sym_p, &level, &offset);
   // store the frame's address into the register first, then find with offset
   frame_address(level, RAX);
-  out << "mov" << "\t" << "[RAX - " << offset * 8 << "], " << reg[src] << endl;
+  out << "\t\t" << "mov" << "\t" << "[RAX - " << offset * 8 << "], " << reg[src] << endl;
 }
 
 void code_generator::store_float(sym_index sym_p) {
@@ -235,13 +235,13 @@ void code_generator::store_float(sym_index sym_p) {
   int offset;
   find(sym_p, &level, &offset);
   // borrow RAX as a temporary register, store it's value into the stack first
-  out << "push" << "\t" << "RAX" << endl;
+  out << "\t\t" << "push" << "\t" << "RAX" << endl;
   // store the frame's address into the register first, then find with offset
   frame_address(level, RAX);
-  out << "fld" << "\t" << "[RAX - " << offset * 8 << "] " << endl;
+  out << "\t\t" << "fld" << "\t" << "[RAX - " << offset * 8 << "] " << endl;
 
   // restore the value of RAX
-  out << "pop" << "\t" << "RAX" << endl;
+  out << "\t\t" << "pop" << "\t" << "RAX" << endl;
 }
 
 /* This function fetches the base address of an array. */
@@ -252,7 +252,7 @@ void code_generator::array_address(sym_index sym_p, register_type dest) {
   find(sym_p, &level, &offset);
   // store the frame's address into the register first, then find with offset
   frame_address(level, dest);
-  out << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << " - " << offset * 8
+  out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << " - " << offset * 8
       << "]" << endl;
 }
 
@@ -300,10 +300,10 @@ void code_generator::expand(quad_list *q_list) {
       out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
       out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
       // Equal branch
-      out << "\t\t" << "L" << label << ":" << endl;
+      out << "L"<< label << ":" << endl;
       out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
 
-      out << "\t\t" << "L" << label2 << ":" << endl;
+      out << "L" << label2 << ":" << endl;
       store(RAX, q->sym3);
       break;
     }
@@ -361,10 +361,10 @@ void code_generator::expand(quad_list *q_list) {
       out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
       out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
       // True branch
-      out << "\t\t" << "L" << label << ":" << endl;
+      out << "L"<< label << ":" << endl;
       out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
 
-      out << "\t\t" << "L" << label2 << ":" << endl;
+      out << "L"<< label2 << ":" << endl;
       store(RAX, q->sym3);
       break;
     }
@@ -382,10 +382,10 @@ void code_generator::expand(quad_list *q_list) {
       out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
       out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
       // False branch
-      out << "\t\t" << "L" << label << ":" << endl;
+      out << "L"<< label << ":" << endl;
       out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
 
-      out << "\t\t" << "L" << label2 << ":" << endl;
+      out << "L"<< label2 << ":" << endl;
       store(RAX, q->sym3);
       break;
     }
@@ -440,10 +440,10 @@ void code_generator::expand(quad_list *q_list) {
       out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
       out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
       // True branch
-      out << "\t\t" << "L" << label << ":" << endl;
+      out << "L"<< label << ":" << endl;
       out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
 
-      out << "\t\t" << "L" << label2 << ":" << endl;
+      out << "L"<< label2 << ":" << endl;
       store(RAX, q->sym3);
       break;
     }
@@ -459,10 +459,10 @@ void code_generator::expand(quad_list *q_list) {
       out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
       out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
       // True branch
-      out << "\t\t" << "L" << label << ":" << endl;
+      out << "L"<< label << ":" << endl;
       out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
 
-      out << "\t\t" << "L" << label2 << ":" << endl;
+      out << "L"<< label2 << ":" << endl;
       store(RAX, q->sym3);
       break;
     }
@@ -480,10 +480,10 @@ void code_generator::expand(quad_list *q_list) {
       out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
       out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
       // True branch
-      out << "\t\t" << "L" << label << ":" << endl;
+      out << "L"<< label << ":" << endl;
       out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
 
-      out << "\t\t" << "L" << label2 << ":" << endl;
+      out << "L"<< label2 << ":" << endl;
       store(RAX, q->sym3);
       break;
     }
@@ -499,10 +499,10 @@ void code_generator::expand(quad_list *q_list) {
       out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
       out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
       // True branch
-      out << "\t\t" << "L" << label << ":" << endl;
+      out << "L"<< label << ":" << endl;
       out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
 
-      out << "\t\t" << "L" << label2 << ":" << endl;
+      out << "L"<< label2 << ":" << endl;
       store(RAX, q->sym3);
       break;
     }
@@ -521,10 +521,10 @@ void code_generator::expand(quad_list *q_list) {
       out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
       out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
       // True branch
-      out << "\t\t" << "L" << label << ":" << endl;
+      out << "L"<< label << ":" << endl;
       out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
 
-      out << "\t\t" << "L" << label2 << ":" << endl;
+      out << "L"<< label2 << ":" << endl;
       store(RAX, q->sym3);
       break;
     }
@@ -540,10 +540,10 @@ void code_generator::expand(quad_list *q_list) {
       out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
       out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
       // True branch
-      out << "\t\t" << "L" << label << ":" << endl;
+      out << "L"<< label << ":" << endl;
       out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
 
-      out << "\t\t" << "L" << label2 << ":" << endl;
+      out << "L"<< label2 << ":" << endl;
       store(RAX, q->sym3);
       break;
     }
@@ -562,10 +562,10 @@ void code_generator::expand(quad_list *q_list) {
       out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
       out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
       // True branch
-      out << "\t\t" << "L" << label << ":" << endl;
+      out << "L"<< label << ":" << endl;
       out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
 
-      out << "\t\t" << "L" << label2 << ":" << endl;
+      out << "L"<< label2 << ":" << endl;
       store(RAX, q->sym3);
       break;
     }
@@ -581,10 +581,10 @@ void code_generator::expand(quad_list *q_list) {
       out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
       out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
       // True branch
-      out << "\t\t" << "L" << label << ":" << endl;
+      out << "L"<< label << ":" << endl;
       out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
 
-      out << "\t\t" << "L" << label2 << ":" << endl;
+      out << "L"<< label2 << ":" << endl;
       store(RAX, q->sym3);
       break;
     }
@@ -641,11 +641,11 @@ void code_generator::expand(quad_list *q_list) {
       frame_address(level, RCX);
       out << "\t\t" << "fild" << "\t" << "qword ptr [rcx";
       if (offset >= 0) {
-        out << "+" << offset;
+        out << "\t\t" << "+" << offset;
       } else {
         out << offset; // Implicit "-"
       }
-      out << "]" << endl;
+      out << "\t\t" << "]" << endl;
       store_float(q->sym3);
     } break;
 
