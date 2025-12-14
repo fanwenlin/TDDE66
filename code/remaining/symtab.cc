@@ -173,13 +173,7 @@ sym_index symbol_table::gen_temp_var(sym_index type) {
   snprintf(temp_var, MAX_TEMP_VAR_LENGTH + 1, "$%ld", ++temp_nr);
   pool_index temp_var_idx = pool_install(temp_var);
   sym_index temp_var_sym = install_symbol(temp_var_idx, SYM_VAR);
-  sym_table[temp_var_sym]->type = type;
-  sym_table[temp_var_sym]->level = current_level;
-  sym_table[temp_var_sym]->hash_link = NULL_SYM;
-  sym_table[temp_var_sym]->back_link = NULL_SYM;
-  sym_table[temp_var_sym]->offset = 0;
-  sym_table[temp_var_sym]->tag = SYM_VAR;
-  return temp_var_sym;
+  return enter_variable(temp_var_idx, type);
 }
 
 /* This function returns the byte size of a nametype. */
