@@ -96,8 +96,11 @@ lab7: all
 	diff -ub ../trace/codetest1.dout d.out
 
 lab7out: all
-	- ./diesel -y ../testpgm/codetest1.d 2>&1 
-	
+	- ./diesel -y ../testpgm/codetest1.d 2>&1
+
+lab7outtest: all
+	- ./diesel -y -t ../testpgm/codetest1.d 2>&1
+
 $(DPFILE) depend : $(BASESRC) $(HEADERS) $(SOURCES)
 	$(CC) $(DPFLAGS) $(CFLAGS) $(BASESRC) > $(DPFILE)
 

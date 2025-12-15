@@ -1,3 +1,4 @@
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -98,8 +99,7 @@ void code_generator::prologue(symbol *new_env) {
   // copy the display area statically because we know the level of the block
   {
     for (int i = 0; i < new_env->level; i++) {
-      out << "\t\t" << "push" << "\t" << "[rbp - " << (i + 1) * 8 << "]"
-          << endl;
+      out << "\t\t" << "push" << "\t" << "[rbp-" << (i + 1) * 8 << "]" << endl;
     }
   }
 
@@ -133,8 +133,18 @@ void code_generator::epilogue(symbol *old_env) {
 void code_generator::find(sym_index sym_p, int *level, int *offset) {
   /* Your code here */
   symbol *sym = sym_tab->get_symbol(sym_p);
-  *level = sym->level;
-  *offset = sym->offset;
+  if (sym->tag == SYM_VAR || sym->tag == SYM_ARRAY) {
+    *level = sym->level;
+    *offset = (sym->offset) + ((sym->level + 1) * STACK_WIDTH);
+  } else if (sym->tag == SYM_PARAM) {
+    *level = sym->level;
+    // parameters are stored in the caller's activation record, so we need to
+    // subtract the offset from the callee's activation record, plus old_rbp(8) + return_addr(8)
+    *offset = - (sym->offset + 2*STACK_WIDTH);
+  } else {
+    cout << "find() called for non-var/param/array" << sym << endl;
+    fatal("find() called for non-var/param/array");
+  }
 }
 
 /*
@@ -143,7 +153,7 @@ void code_generator::find(sym_index sym_p, int *level, int *offset) {
  */
 void code_generator::frame_address(int level, const register_type dest) {
   /* Your code here */
-  out << "\t\t" << "mov" << "\t" << reg[dest] << ", [rbp - " << level * 8 << "]"
+  out << "\t\t" << "mov" << "\t" << reg[dest] << ", [rbp-" << level * 8 << "]"
       << endl;
 }
 
@@ -156,14 +166,14 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
   }
   // if variable
   symbol *sym = sym_tab->get_symbol(sym_p);
-  if (sym->tag == SYM_VAR) {
+  if (sym->tag == SYM_VAR || sym->tag == SYM_PARAM) {
     block_level level;
     int offset;
     find(sym_p, &level, &offset);
     // store the frame's address into the register first, then find with offset
     frame_address(level, dest);
-    out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << " - "
-        << offset * 8 << "]" << endl;
+    out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << (offset > 0 ? "-" : "+")
+        << abs(offset) << "]" << endl;
   } else if (sym->tag == SYM_CONST) {
     // const
     out << "\t\t" << "mov" << "\t" << reg[dest] << ", "
@@ -177,7 +187,7 @@ void code_generator::fetch_float(sym_index sym_p) {
     return;
   }
   symbol *sym = sym_tab->get_symbol(sym_p);
-  if (sym->tag == SYM_VAR) {
+  if (sym->tag == SYM_VAR || sym->tag == SYM_PARAM) {
     block_level level;
     int offset;
     find(sym_p, &level, &offset);
@@ -186,7 +196,7 @@ void code_generator::fetch_float(sym_index sym_p) {
     // store the frame's address into the register first, then find with offset
     frame_address(level, RAX);
     out << "\t\t" << "fld" << "\t"
-        << "[RAX - " << offset * 8 << "] " << endl;
+        << "[RAX-" << offset << "] " << endl;
 
     // restore the value of RAX
     out << "\t\t" << "pop" << "\t" << "RAX" << endl;
@@ -201,6 +211,15 @@ void code_generator::fetch_float(sym_index sym_p) {
   }
 }
 
+register_type another_register(const register_type reg) {
+  if (reg == RAX) {
+    return RCX;
+  } else if (reg == RCX) {
+    return RAX;
+  }
+  return RCX;
+}
+
 /* This function stores the value of a register into a variable. */
 void code_generator::store(register_type src, sym_index sym_p) {
   /* Your code here */
@@ -211,9 +230,11 @@ void code_generator::store(register_type src, sym_index sym_p) {
   int offset;
   find(sym_p, &level, &offset);
   // store the frame's address into the register first, then find with offset
-  frame_address(level, RAX);
-  out << "\t\t" << "mov" << "\t" << "[RAX - " << offset * 8 << "], " << reg[src]
-      << endl;
+  // we assume `store` will only be called once in a single quad, so we can use
+  // another temp register to avoid overwriting the source register
+  frame_address(level, another_register(src));
+  out << "\t\t" << "mov" << "\t" << "[" << reg[another_register(src)] << (offset > 0 ?"-" : "+")
+      << abs(offset) << "], " << reg[src] << endl;
 }
 
 void code_generator::store_float(sym_index sym_p) {
@@ -228,7 +249,7 @@ void code_generator::store_float(sym_index sym_p) {
   out << "\t\t" << "push" << "\t" << "RAX" << endl;
   // store the frame's address into the register first, then find with offset
   frame_address(level, RAX);
-  out << "\t\t" << "fld" << "\t" << "[RAX - " << offset * 8 << "] " << endl;
+  out << "\t\t" << "fld" << "\t" << "[RAX-" << offset << "] " << endl;
 
   // restore the value of RAX
   out << "\t\t" << "pop" << "\t" << "RAX" << endl;
@@ -242,8 +263,7 @@ void code_generator::array_address(sym_index sym_p, register_type dest) {
   find(sym_p, &level, &offset);
   // store the frame's address into the register first, then find with offset
   frame_address(level, dest);
-  out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << " - "
-      << offset * 8 << "]" << endl;
+  out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << (offset > 0 ? "-" : "+") << abs(offset) << "]" << endl;
 }
 
 /* This method expands a quad_list into assembler code, quad for quad. */
@@ -521,6 +541,7 @@ void code_generator::expand(quad_list *q_list) {
     case q_ilt: {
       int label = sym_tab->get_next_label();
       int label2 = sym_tab->get_next_label();
+      // cout << "Debug message: "<< q << endl;
 
       fetch(q->sym1, RAX);
       fetch(q->sym2, RCX);
@@ -593,10 +614,33 @@ void code_generator::expand(quad_list *q_list) {
 
     case q_param:
       /* Your code here */
+      fetch(q->sym1, RAX);
+      out << "\t\t" << "push" << "\t" << "rax" << endl;
       break;
 
     case q_call: {
       /* Your code here */
+      symbol *sym = sym_tab->get_symbol(q->sym1);
+      if (sym->tag == SYM_PROC) {
+        out << "\t\t" << "call" << "\t" << "L"
+            << sym->get_procedure_symbol()->label_nr << "\t" << "# "
+            << sym_tab->pool_lookup(sym->id) << endl;
+
+      } else if (sym->tag == SYM_FUNC) {
+        out << "\t\t" << "call" << "\t" << "L"
+            << sym->get_function_symbol()->label_nr << "\t" << "# "
+            << sym_tab->pool_lookup(sym->id) << endl;
+
+      } else {
+        fatal("code_generator::expand(): q_call quadruple produced.");
+        return;
+      }
+      if (q->int2 > 0) {
+        out << "\t\t" << "add" << "\t" << "rsp, " << q->int2 * 8 << endl;
+      }
+      if (q->sym3 != NULL_SYM) {
+        store(RAX, q->sym3);
+      }
       break;
     }
     case q_rreturn:

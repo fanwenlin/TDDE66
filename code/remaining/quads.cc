@@ -455,7 +455,7 @@ sym_index ast_if::generate_quads(quad_list &q) {
   /* Your code here */
   // if the condition does not hold, we jump to the bottom label
   int elsbegin = sym_tab->get_next_label();
-  int elsend = sym_tab->get_next_label();
+  
 
   // Generate quads for the condition
   sym_index pos = condition->generate_quads(q);
@@ -466,21 +466,28 @@ sym_index ast_if::generate_quads(quad_list &q) {
   if (body != NULL) {
     body->generate_quads(q);
   }
-  // jump to the else end label after the if body
-  q += new quadruple(q_jmp, elsend, NULL_SYM, NULL_SYM);
 
-  // label the else begin label
-  q += new quadruple(q_labl, elsbegin, NULL_SYM, NULL_SYM);
+  if (elsif_list != NULL || else_body != NULL) {
+    int elsend = sym_tab->get_next_label();
+    // jump to the else end label after the if body
+    q += new quadruple(q_jmp, elsend, NULL_SYM, NULL_SYM);
 
-  if (elsif_list != NULL) {
-    elsif_list->generate_quads_and_jump(q, elsend);
+    // label the else begin label
+    q += new quadruple(q_labl, elsbegin, NULL_SYM, NULL_SYM);
+
+    if (elsif_list != NULL) {
+      elsif_list->generate_quads_and_jump(q, elsend);
+    }
+    if (else_body != NULL) {
+      // dont need to jump in the end of the list
+      else_body->generate_quads(q);
+    }
+    // label the else end label
+    q += new quadruple(q_labl, elsend, NULL_SYM, NULL_SYM);
+  } else {
+    // only if body, no elsif or else
+    q += new quadruple(q_labl, elsbegin, NULL_SYM, NULL_SYM);
   }
-  if (else_body != NULL) {
-    // dont need to jump in the end of the list
-    else_body->generate_quads(q);
-  }
-  // label the else end label
-  q += new quadruple(q_labl, elsend, NULL_SYM, NULL_SYM);
   return NULL_SYM;
 }
 
