@@ -196,11 +196,10 @@ void code_generator::fetch_float(sym_index sym_p) {
         << endl;
   } else {
     // const
-    // store the constant value into top of stack
-    out << "\t\t" << "push" << "\t"
-        << sym_tab->ieee(sym->get_constant_symbol()->const_value.rval) << endl;
-    out << "\t\t" << "fld" << "\t" << "ST(0)" << endl;
-    // pop the value (dont need accept)
+    long value = sym_tab->ieee(sym->get_constant_symbol()->const_value.rval);
+    out << "\t\t" << "mov" << "\t" << "rax, " << value << endl;
+    out << "\t\t" << "push" << "\t" << "rax" << endl;
+    out << "\t\t" << "fld" << "\t" << "qword ptr [rsp]" << endl;
     out << "\t\t" << "add" << "\t" << "rsp, 8" << endl;
   }
 }
@@ -241,11 +240,10 @@ void code_generator::store_float(sym_index sym_p) {
   find(sym_p, &level, &offset);
   // Preserve RAX, use it to compute the destination address, and write ST(0)
   // to memory while popping the FPU stack.
-  out << "\t\t" << "push" << "\t" << "RAX" << endl;
+
   frame_address(level, RAX);
   out << "\t\t" << "fstp" << "\t" << "qword ptr [RAX" << (offset <= 0 ? "-" : "+") << abs(offset) << "]"
       << endl;
-  out << "\t\t" << "pop" << "\t" << "RAX" << endl;
 }
 
 /* This function fetches the base address of an array. */
@@ -254,9 +252,13 @@ void code_generator::array_address(sym_index sym_p, register_type dest) {
   block_level level;
   int offset;
   find(sym_p, &level, &offset);
-  // store the frame's address into the register first, then find with offset
+  // store the frame's address into the register first, then compute element base
   frame_address(level, dest);
-  out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << (offset <= 0 ? "-" : "+") << abs(offset) << "]" << endl;
+  if (offset >= 0) {
+    out << "\t\t" << "add" << "\t" << reg[dest] << ", " << offset << endl;
+  } else {
+    out << "\t\t" << "sub" << "\t" << reg[dest] << ", " << abs(offset) << endl;
+  }
 }
 
 /* This method expands a quad_list into assembler code, quad for quad. */
