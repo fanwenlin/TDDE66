@@ -508,12 +508,30 @@ void symbol_table::open_scope() {
 sym_index symbol_table::close_scope() {
   /* Your code here */
   // delete all symbols in the current scope
-  for (int i = block_table[current_level] + 1; i <= sym_pos; i++) {
+  for (int i = sym_pos; i > block_table[current_level]; --i) {
     symbol *tmp = sym_table[i];
-    hash_index hash_value = tmp->back_link;
-    if (hash_table[hash_value] == i) {
-      hash_table[hash_value] = tmp->hash_link;
+    if (tmp == NULL) {
+      continue;
     }
+
+    hash_index hash_value = tmp->back_link;
+    sym_index head = hash_table[hash_value];
+
+    if (head == i) {
+      hash_table[hash_value] = tmp->hash_link;
+    } else {
+      // Walk the bucket to unlink this symbol even if it's not at the head.
+      sym_index prev = head;
+      while (prev != NULL_SYM) {
+        symbol *prev_sym = sym_table[prev];
+        if (prev_sym->hash_link == i) {
+          prev_sym->hash_link = tmp->hash_link;
+          break;
+        }
+        prev = prev_sym->hash_link;
+      }
+    }
+
     tmp->hash_link = NULL_SYM;
   }
 
