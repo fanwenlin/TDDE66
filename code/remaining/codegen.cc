@@ -135,12 +135,12 @@ void code_generator::find(sym_index sym_p, int *level, int *offset) {
   symbol *sym = sym_tab->get_symbol(sym_p);
   if (sym->tag == SYM_VAR || sym->tag == SYM_ARRAY) {
     *level = sym->level;
-    *offset = (sym->offset) + ((sym->level + 1) * STACK_WIDTH);
+    *offset = - ((sym->offset) + ((sym->level + 1) * STACK_WIDTH));
   } else if (sym->tag == SYM_PARAM) {
     *level = sym->level;
     // parameters are stored in the caller's activation record, so we need to
     // subtract the offset from the callee's activation record, plus old_rbp(8) + return_addr(8)
-    *offset = - (sym->offset + 2*STACK_WIDTH);
+    *offset = + (sym->offset + 2*STACK_WIDTH);
   } else {
     fatal("find() called for non-var/param/array");
   }
@@ -171,7 +171,7 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
     find(sym_p, &level, &offset);
     // store the frame's address into the register first, then find with offset
     frame_address(level, dest);
-    out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << (offset > 0 ? "-" : "+")
+    out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << (offset <= 0 ? "-" : "+")
         << abs(offset) << "]" << endl;
   } else if (sym->tag == SYM_CONST) {
     // const
@@ -192,13 +192,13 @@ void code_generator::fetch_float(sym_index sym_p) {
     find(sym_p, &level, &offset);
     // store the frame's address into the register first, then find with offset
     frame_address(level, RCX);
-    out << "\t\t" << "fld" << "\t"
-        << "[RCX-" << offset << "] " << endl;
+    out << "\t\t" << "fld" << "\t" << "qword ptr [RCX" << (offset <= 0 ? "-" : "+") << abs(offset) << "] "
+        << endl;
   } else {
     // const
     // store the constant value into top of stack
     out << "\t\t" << "push" << "\t"
-        << sym->get_constant_symbol()->const_value.rval << endl;
+        << sym_tab->ieee(sym->get_constant_symbol()->const_value.rval) << endl;
     out << "\t\t" << "fld" << "\t" << "ST(0)" << endl;
     // pop the value (dont need accept)
     out << "\t\t" << "add" << "\t" << "rsp, 8" << endl;
@@ -227,7 +227,7 @@ void code_generator::store(register_type src, sym_index sym_p) {
   // we assume `store` will only be called once in a single quad, so we can use
   // another temp register to avoid overwriting the source register
   frame_address(level, another_register(src));
-  out << "\t\t" << "mov" << "\t" << "[" << reg[another_register(src)] << (offset > 0 ?"-" : "+")
+  out << "\t\t" << "mov" << "\t" << "[" << reg[another_register(src)] << (offset <= 0 ? "-" : "+")
       << abs(offset) << "], " << reg[src] << endl;
 }
 
@@ -239,13 +239,12 @@ void code_generator::store_float(sym_index sym_p) {
   block_level level;
   int offset;
   find(sym_p, &level, &offset);
-  // borrow RAX as a temporary register, store it's value into the stack first
+  // Preserve RAX, use it to compute the destination address, and write ST(0)
+  // to memory while popping the FPU stack.
   out << "\t\t" << "push" << "\t" << "RAX" << endl;
-  // store the frame's address into the register first, then find with offset
   frame_address(level, RAX);
-  out << "\t\t" << "fld" << "\t" << "[RAX-" << offset << "] " << endl;
-
-  // restore the value of RAX
+  out << "\t\t" << "fstp" << "\t" << "qword ptr [RAX" << (offset <= 0 ? "-" : "+") << abs(offset) << "]"
+      << endl;
   out << "\t\t" << "pop" << "\t" << "RAX" << endl;
 }
 
@@ -257,7 +256,7 @@ void code_generator::array_address(sym_index sym_p, register_type dest) {
   find(sym_p, &level, &offset);
   // store the frame's address into the register first, then find with offset
   frame_address(level, dest);
-  out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << (offset > 0 ? "-" : "+") << abs(offset) << "]" << endl;
+  out << "\t\t" << "mov" << "\t" << reg[dest] << ", [" << reg[dest] << (offset <= 0 ? "-" : "+") << abs(offset) << "]" << endl;
 }
 
 /* This method expands a quad_list into assembler code, quad for quad. */
@@ -672,7 +671,7 @@ void code_generator::expand(quad_list *q_list) {
       } else {
         out << offset; // Implicit "-"
       }
-      out << "\t\t" << "]" << endl;
+      out << "]" << endl;
       store_float(q->sym3);
     } break;
 
