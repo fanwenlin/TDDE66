@@ -190,15 +190,10 @@ void code_generator::fetch_float(sym_index sym_p) {
     block_level level;
     int offset;
     find(sym_p, &level, &offset);
-    // borrow RAX as a temporary register, store it's value into the stack first
-    out << "\t\t" << "push" << "\t" << "RAX" << endl;
     // store the frame's address into the register first, then find with offset
-    frame_address(level, RAX);
+    frame_address(level, RCX);
     out << "\t\t" << "fld" << "\t"
-        << "[RAX-" << offset << "] " << endl;
-
-    // restore the value of RAX
-    out << "\t\t" << "pop" << "\t" << "RAX" << endl;
+        << "[RCX-" << offset << "] " << endl;
   } else {
     // const
     // store the constant value into top of stack
