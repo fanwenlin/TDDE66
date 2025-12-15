@@ -142,7 +142,6 @@ void code_generator::find(sym_index sym_p, int *level, int *offset) {
     // subtract the offset from the callee's activation record, plus old_rbp(8) + return_addr(8)
     *offset = - (sym->offset + 2*STACK_WIDTH);
   } else {
-    cout << "find() called for non-var/param/array" << sym << endl;
     fatal("find() called for non-var/param/array");
   }
 }
@@ -541,7 +540,6 @@ void code_generator::expand(quad_list *q_list) {
     case q_ilt: {
       int label = sym_tab->get_next_label();
       int label2 = sym_tab->get_next_label();
-      // cout << "Debug message: "<< q << endl;
 
       fetch(q->sym1, RAX);
       fetch(q->sym2, RCX);
